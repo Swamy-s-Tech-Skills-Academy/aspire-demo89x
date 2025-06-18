@@ -1,0 +1,67 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36212.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "images", "images", "{C25357EB-3B11-4D8A-81FD-3143E926030B}"
+	ProjectSection(SolutionItems) = preProject
+		docs\images\A.txt = docs\images\A.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DD5FD6B4-AE36-47E5-A636-95B05E4DEE16}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloAspire.AppHost", "src\HelloAspire.AppHost\HelloAspire.AppHost.csproj", "{AFCCCD2C-6FFC-46E9-B2B4-0CBFEB749E03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloAspire.ServiceDefaults", "src\HelloAspire.ServiceDefaults\HelloAspire.ServiceDefaults.csproj", "{5A61700B-117C-940B-7A80-545F8E0E4AAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloAspire.ApiService", "src\HelloAspire.ApiService\HelloAspire.ApiService.csproj", "{0E64E318-B261-A78E-4081-7D34E1A2E54E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloAspire.Web", "src\HelloAspire.Web\HelloAspire.Web.csproj", "{84EDF99E-7E0B-B2F1-0DC3-8AB9F38651E1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AFCCCD2C-6FFC-46E9-B2B4-0CBFEB749E03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFCCCD2C-6FFC-46E9-B2B4-0CBFEB749E03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFCCCD2C-6FFC-46E9-B2B4-0CBFEB749E03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFCCCD2C-6FFC-46E9-B2B4-0CBFEB749E03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A61700B-117C-940B-7A80-545F8E0E4AAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A61700B-117C-940B-7A80-545F8E0E4AAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A61700B-117C-940B-7A80-545F8E0E4AAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A61700B-117C-940B-7A80-545F8E0E4AAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E64E318-B261-A78E-4081-7D34E1A2E54E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E64E318-B261-A78E-4081-7D34E1A2E54E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E64E318-B261-A78E-4081-7D34E1A2E54E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E64E318-B261-A78E-4081-7D34E1A2E54E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84EDF99E-7E0B-B2F1-0DC3-8AB9F38651E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84EDF99E-7E0B-B2F1-0DC3-8AB9F38651E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84EDF99E-7E0B-B2F1-0DC3-8AB9F38651E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84EDF99E-7E0B-B2F1-0DC3-8AB9F38651E1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C25357EB-3B11-4D8A-81FD-3143E926030B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{AFCCCD2C-6FFC-46E9-B2B4-0CBFEB749E03} = {DD5FD6B4-AE36-47E5-A636-95B05E4DEE16}
+		{5A61700B-117C-940B-7A80-545F8E0E4AAF} = {DD5FD6B4-AE36-47E5-A636-95B05E4DEE16}
+		{0E64E318-B261-A78E-4081-7D34E1A2E54E} = {DD5FD6B4-AE36-47E5-A636-95B05E4DEE16}
+		{84EDF99E-7E0B-B2F1-0DC3-8AB9F38651E1} = {DD5FD6B4-AE36-47E5-A636-95B05E4DEE16}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {548BADA0-443C-49DA-86DA-63B8D37A41DE}
+	EndGlobalSection
+EndGlobal
