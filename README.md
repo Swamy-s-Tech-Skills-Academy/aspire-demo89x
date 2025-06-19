@@ -1,2 +1,3 @@
-# aspire-demo89x
-I am learning .NET Aspire from different Video Courses, Books, and Websites
+# .NET Aspire With AI Stack
+
+A distributed AI-powered architecture built with .NET Aspire, PostgreSQL, Redis, RabbitMQ, Keycloak, Ollama, and VectorDB.
