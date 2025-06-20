@@ -23,7 +23,7 @@ properties:
   template:
     containers:
       - image: {{ .Image }}
-        name: api-service
+        name: sv-api-service-dev
         env:
           - name: AZURE_CLIENT_ID
             value: {{ .Env.MANAGED_IDENTITY_CLIENT_ID }}
@@ -40,5 +40,5 @@ properties:
     scale:
       minReplicas: 1
 tags:
-  azd-service-name: api-service
-  aspire-resource-name: api-service
+  azd-service-name: sv-api-service-dev
+  aspire-resource-name: sv-api-service-dev

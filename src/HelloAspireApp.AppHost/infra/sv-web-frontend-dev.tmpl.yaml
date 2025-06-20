@@ -26,7 +26,7 @@ properties:
   template:
     containers:
       - image: {{ .Image }}
-        name: web-frontend
+        name: sv-web-frontend-dev
         env:
           - name: AZURE_CLIENT_ID
             value: {{ .Env.MANAGED_IDENTITY_CLIENT_ID }}
@@ -40,14 +40,14 @@ properties:
             value: "true"
           - name: OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY
             value: in_memory
-          - name: services__api-service__http__0
-            value: http://api-service.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
-          - name: services__api-service__https__0
-            value: https://api-service.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: services__sv-api-service-dev__http__0
+            value: http://sv-api-service-dev.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: services__sv-api-service-dev__https__0
+            value: https://sv-api-service-dev.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
           - name: ConnectionStrings__cache
             secretRef: connectionstrings--cache
     scale:
       minReplicas: 1
 tags:
-  azd-service-name: web-frontend
-  aspire-resource-name: web-frontend
+  azd-service-name: sv-web-frontend-dev
+  aspire-resource-name: sv-web-frontend-dev
