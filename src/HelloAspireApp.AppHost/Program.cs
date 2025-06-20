@@ -10,7 +10,7 @@ builder.Services.Configure<AzureProvisioningOptions>(options =>
     options.ProvisioningBuildOptions.InfrastructureResolvers.Insert(0, new FixedNameInfrastructureResolver(builder.Configuration));
 });
 
-var cache = builder.AddRedis("cache");
+var cache = builder.AddAzureRedis("cache");
 
 var apiService = builder.AddProject<Projects.HelloAspireApp_ApiService>("api-service");
 
