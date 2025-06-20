@@ -48,6 +48,52 @@ azd up
 
 **Recommendation**: Use `azd infra synth` for this Aspire project since it will automatically respect your custom naming resolver and generate appropriate infrastructure.
 
+## Custom Resource Naming
+
+This project implements a `FixedNameInfrastructureResolver` that provides consistent, predictable naming for all Azure resources instead of auto-generated unique names.
+
+### Configuration
+
+The resolver requires the following configuration:
+
+```json
+{
+  "Azure": {
+    "ResourceGroup": "your-resource-group-name-dev" // Must end with "dev" for dev environment
+  }
+}
+```
+
+### Naming Patterns
+
+| Resource Type                  | Pattern              | Example              |
+| ------------------------------ | -------------------- | -------------------- |
+| **Container Apps**             | `sv-{service}-{env}` | `sv-api-service-dev` |
+| **Redis Cache**                | `sv-{service}-{env}` | `sv-cache-dev`       |
+| **Storage Account**            | `sv{service}{env}`   | `svcachedev`         |
+| **Container Registry**         | `svacr{env}`         | `svacrdev`           |
+| **Log Analytics Workspace**    | `sv-law{env}`        | `sv-law-dev`         |
+| **Container Apps Environment** | `sv-cae{env}`        | `sv-cae-dev`         |
+
+### Features
+
+- **Environment Detection**: Automatically detects dev environment from resource group name
+- **Naming Compliance**: Respects Azure naming restrictions (some resources don't allow hyphens)
+- **Consistent Branding**: All resources use the "sv" company prefix
+- **Predictable Names**: Easy to identify and manage resources in Azure Portal
+
+### Service Configuration
+
+The AppHost defines the following services with custom names:
+
+```csharp
+var cache = builder.AddRedis("cache");
+var apiService = builder.AddProject<Projects.HelloAspireApp_ApiService>("api-service");
+builder.AddProject<Projects.HelloAspireApp_Web>("web-frontend")
+```
+
+These service names become the `{service}` part in the naming patterns above.
+
 ```text
 SUCCESS: Your app is ready for the cloud!
 Run azd up to provision and deploy your app to Azure.
