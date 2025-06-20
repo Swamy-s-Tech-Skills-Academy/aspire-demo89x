@@ -1,0 +1,31 @@
+using Azure.Provisioning;
+using Azure.Provisioning.Primitives;
+using Azure.Provisioning.Redis;
+using Azure.Provisioning.Storage;
+using Microsoft.Extensions.Configuration;
+
+namespace HelloAspireApp.AppHost;
+
+public sealed class FixedNameInfrastructureResolver(IConfiguration configuration) : InfrastructureResolver
+{
+    private readonly IConfiguration _configuration = configuration;
+    private const string UniqueNamePrefix = "<YourCompanyPrefix>";
+
+    public override void ResolveProperties(ProvisionableConstruct construct, ProvisioningBuildOptions options)
+    {
+        string resourceGroup = _configuration["Azure:ResourceGroup"] ?? throw new Exception("Missing 'Azure:ResourceGroup' configuration");
+        string environmentSuffix = resourceGroup.EndsWith("dev") ? "-dev" : string.Empty; switch (construct)
+        {
+            case StorageAccount storageAccount:
+                storageAccount.Name = $"{UniqueNamePrefix}{storageAccount.BicepIdentifier.ToLowerInvariant()}{environmentSuffix.Replace("-", string.Empty)}";
+                break;
+            case Azure.Provisioning.Redis.RedisResource redisCache:
+                redisCache.Name = $"{UniqueNamePrefix}-{redisCache.BicepIdentifier.ToLowerInvariant()}{environmentSuffix}";
+                break;
+
+            default:
+                break;
+        }
+    }
+
+}
