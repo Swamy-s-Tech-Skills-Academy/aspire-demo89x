@@ -16,8 +16,10 @@ public sealed class FixedNameInfrastructureResolver(IConfiguration configuration
 
     public override void ResolveProperties(ProvisionableConstruct construct, ProvisioningBuildOptions options)
     {
-        string resourceGroup = _configuration["Azure:ResourceGroup"] ?? throw new Exception("Missing 'Azure:ResourceGroup' configuration");
-        string environmentSuffix = resourceGroup.EndsWith("dev") ? "-dev" : string.Empty; switch (construct)
+        // string resourceGroup = _configuration["Azure:ResourceGroup"] ?? throw new Exception("Missing 'Azure:ResourceGroup' configuration");
+        string environmentSuffix = "-dev";
+
+        switch (construct)
         {
             case StorageAccount storageAccount:
                 storageAccount.Name = $"{UniqueNamePrefix}{storageAccount.BicepIdentifier.ToLowerInvariant()}{environmentSuffix.Replace("-", string.Empty)}";
