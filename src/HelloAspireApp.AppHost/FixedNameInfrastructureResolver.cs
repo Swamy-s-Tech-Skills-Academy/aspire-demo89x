@@ -1,4 +1,5 @@
 using Azure.Provisioning;
+using Azure.Provisioning.AppContainers;
 using Azure.Provisioning.Primitives;
 using Azure.Provisioning.Redis;
 using Azure.Provisioning.Storage;
@@ -19,8 +20,13 @@ public sealed class FixedNameInfrastructureResolver(IConfiguration configuration
             case StorageAccount storageAccount:
                 storageAccount.Name = $"{UniqueNamePrefix}{storageAccount.BicepIdentifier.ToLowerInvariant()}{environmentSuffix.Replace("-", string.Empty)}";
                 break;
+
             case Azure.Provisioning.Redis.RedisResource redisCache:
                 redisCache.Name = $"{UniqueNamePrefix}-{redisCache.BicepIdentifier.ToLowerInvariant()}{environmentSuffix}";
+                break;
+
+            case ContainerApp containerApp:
+                containerApp.Name = $"{UniqueNamePrefix}-{containerApp.BicepIdentifier.ToLowerInvariant()}{environmentSuffix}";
                 break;
 
             default:

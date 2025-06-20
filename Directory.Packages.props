@@ -10,6 +10,7 @@
     <PackageVersion Include="Aspire.Hosting.Redis" Version="9.3.1" />
     <PackageVersion Include="Aspire.StackExchange.Redis.OutputCaching" Version="9.3.1" />
     <PackageVersion Include="Azure.Provisioning" Version="1.1.0" />
+    <PackageVersion Include="Azure.Provisioning.AppContainers" Version="1.1.0" />
     <PackageVersion Include="Azure.Provisioning.Redis" Version="1.1.0" />
     <PackageVersion Include="Azure.Provisioning.Storage" Version="1.1.0" />
   </ItemGroup>
