@@ -12,9 +12,9 @@ builder.Services.Configure<AzureProvisioningOptions>(options =>
 
 var cache = builder.AddAzureRedis("cache");
 
-var apiService = builder.AddProject<Projects.HelloAspireApp_ApiService>("api-service");
+var apiService = builder.AddProject<Projects.HelloAspireApp_ApiService>("sv-api-service-dev");
 
-builder.AddProject<Projects.HelloAspireApp_Web>("web-frontend")
+builder.AddProject<Projects.HelloAspireApp_Web>("sv-web-frontend-dev")
     .WithExternalHttpEndpoints()
     .WithReference(cache)
     .WaitFor(cache)
