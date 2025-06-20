@@ -12,9 +12,7 @@ namespace HelloAspireApp.AppHost;
 public sealed class FixedNameInfrastructureResolver(IConfiguration configuration) : InfrastructureResolver
 {
     private readonly IConfiguration _configuration = configuration;
-    private const string UniqueNamePrefix = "sv";
-
-    public override void ResolveProperties(ProvisionableConstruct construct, ProvisioningBuildOptions options)
+    private const string UniqueNamePrefix = "sv"; public override void ResolveProperties(ProvisionableConstruct construct, ProvisioningBuildOptions options)
     {
         // string resourceGroup = _configuration["Azure:ResourceGroup"] ?? throw new Exception("Missing 'Azure:ResourceGroup' configuration");
         string environmentSuffix = "-dev";
