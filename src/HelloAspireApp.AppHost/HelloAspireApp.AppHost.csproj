@@ -18,6 +18,8 @@
 		<PackageReference Include="Aspire.Hosting.Redis" />
 		<PackageReference Include="Azure.Provisioning" />
 		<PackageReference Include="Azure.Provisioning.AppContainers" />
+		<PackageReference Include="Azure.Provisioning.ContainerRegistry" />
+		<PackageReference Include="Azure.Provisioning.OperationalInsights" />
 		<PackageReference Include="Azure.Provisioning.Redis" />
 		<PackageReference Include="Azure.Provisioning.Storage" />
 	</ItemGroup>
