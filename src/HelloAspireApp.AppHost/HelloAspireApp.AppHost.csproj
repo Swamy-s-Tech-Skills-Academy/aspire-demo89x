@@ -15,7 +15,15 @@
 
 	<ItemGroup>
 		<PackageReference Include="Aspire.Hosting.AppHost" />
+		<PackageReference Include="Aspire.Hosting.Azure" />
+		<PackageReference Include="Aspire.Hosting.Azure.Redis" />
 		<PackageReference Include="Aspire.Hosting.Redis" />
+		<PackageReference Include="Azure.Provisioning" />
+		<PackageReference Include="Azure.Provisioning.AppContainers" />
+		<PackageReference Include="Azure.Provisioning.ContainerRegistry" />
+		<PackageReference Include="Azure.Provisioning.OperationalInsights" />
+		<PackageReference Include="Azure.Provisioning.Redis" />
+		<PackageReference Include="Azure.Provisioning.Storage" />
 	</ItemGroup>
 
 </Project>
