@@ -3,7 +3,6 @@ using Azure.Provisioning.AppContainers;
 using Azure.Provisioning.ContainerRegistry;
 using Azure.Provisioning.OperationalInsights;
 using Azure.Provisioning.Primitives;
-using Azure.Provisioning.Redis;
 using Azure.Provisioning.Storage;
 using Microsoft.Extensions.Configuration;
 
