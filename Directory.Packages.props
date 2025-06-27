@@ -16,7 +16,7 @@
     <PackageVersion Include="Azure.Provisioning.ContainerRegistry" Version="1.1.0" />
     <PackageVersion Include="Azure.Provisioning.OperationalInsights" Version="1.1.0" />
     <PackageVersion Include="Azure.Provisioning.Redis" Version="1.1.0" />
-    <PackageVersion Include="Azure.Provisioning.Storage" Version="1.1.0" />
+    <PackageVersion Include="Azure.Provisioning.Storage" Version="1.1.1" />
   </ItemGroup>
   <!-- Package versions for Microsoft Extensions -->
   <ItemGroup Label="Microsoft Extensions">
