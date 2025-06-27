@@ -23,7 +23,7 @@ env:
 
 defaults:
   run:
-    working-directory: ./AspireDemo1/AspireDemo1.AppHost
+    working-directory: .src/HelloAspireApp.AppHost
 
 jobs:
   build:
