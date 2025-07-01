@@ -4,14 +4,20 @@ param location string = resourceGroup().location
 @description('Tags that will be applied to all resources')
 param tags object = {}
 
+@description('Environment suffix (D=Dev, T=Test, S=Stage, P=Prod)')
+param environmentSuffix string = 'D'
+
+@description('Unique name prefix for resources')
+param uniqueNamePrefix string = 'sv'
+
 resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: 'sv-mi-dev'
+  name: '${uniqueNamePrefix}-mi-${environmentSuffix}'
   location: location
   tags: tags
 }
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
-  name: 'svacrdev'
+  name: '${uniqueNamePrefix}acr${toLower(environmentSuffix)}${uniqueString(resourceGroup().id)}'
   location: location
   sku: {
     name: 'Basic'
@@ -37,7 +43,7 @@ resource caeMiRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01
 }
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
-  name: 'sv-law-dev'
+  name: '${uniqueNamePrefix}-law-${environmentSuffix}'
   location: location
   properties: {
     sku: {
@@ -48,7 +54,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10
 }
 
 resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2024-02-02-preview' = {
-  name: 'sv-cae-dev'
+  name: '${uniqueNamePrefix}-cae-${environmentSuffix}'
   location: location
   properties: {
     workloadProfiles: [

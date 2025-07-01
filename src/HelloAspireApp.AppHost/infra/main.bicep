@@ -9,6 +9,12 @@ param environmentName string
 @description('The location used for all deployed resources')
 param location string
 
+@description('Environment suffix (D=Dev, T=Test, S=Stage, P=Prod)')
+param environmentSuffix string = 'D'
+
+@description('Unique name prefix for resources')
+param uniqueNamePrefix string = 'sv'
+
 var tags = {
   'azd-env-name': environmentName
 }
@@ -24,6 +30,8 @@ module resources 'resources.bicep' = {
   params: {
     location: location
     tags: tags
+    environmentSuffix: environmentSuffix
+    uniqueNamePrefix: uniqueNamePrefix
   }
 }
 
