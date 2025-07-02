@@ -2,7 +2,7 @@
 param location string = resourceGroup().location
 
 resource cache 'Microsoft.Cache/redis@2024-11-01' = {
-  name: 'sv-cache-dev'
+  name: 'sv-cache-S'
   location: location
   properties: {
     sku: {

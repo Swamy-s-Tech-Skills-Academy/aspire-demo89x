@@ -16,8 +16,13 @@ public sealed class FixedNameInfrastructureResolver(IConfiguration configuration
 
     public override void ResolveProperties(ProvisionableConstruct construct, ProvisioningBuildOptions options)
     {
-        // Get environment suffix from configuration, default to "D" (Development)
-        string environmentSuffix = _configuration["AZURE_ENV_SUFFIX"] ?? "D";
+        // Get environment suffix from environment variable first, then config, default to "D" (Development)
+        string environmentSuffix = Environment.GetEnvironmentVariable("AZURE_ENV_SUFFIX")
+                                  ?? _configuration["AZURE_ENV_SUFFIX"]
+                                  ?? "D";
+
+        // Debug: Log the environment suffix being used
+        Console.WriteLine($"[FixedNameInfrastructureResolver] Using environment suffix: {environmentSuffix} for {construct.GetType().Name}");
 
         switch (construct)
         {
