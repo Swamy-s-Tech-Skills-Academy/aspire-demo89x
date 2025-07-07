@@ -9,9 +9,8 @@ param environmentName string
 @description('The location used for all deployed resources')
 param location string
 
-@description('Id of the user or app to assign application roles')
-param principalId string = ''
-
+@description('Environment suffix for resource naming (D/T/S/P)')
+param environmentSuffix string = 'D'
 
 var tags = {
   'azd-env-name': environmentName
@@ -28,7 +27,7 @@ module resources 'resources.bicep' = {
   params: {
     location: location
     tags: tags
-    principalId: principalId
+    environmentSuffix: environmentSuffix
   }
 }
 
@@ -43,8 +42,7 @@ module cache_roles 'cache-roles/cache-roles.module.bicep' = {
   name: 'cache-roles'
   scope: rg
   params: {
-    cache_outputs_name: cache.outputs.name
-    location: location
+    environmentSuffix: environmentSuffix
     principalId: resources.outputs.MANAGED_IDENTITY_PRINCIPAL_ID
     principalName: resources.outputs.MANAGED_IDENTITY_NAME
   }
