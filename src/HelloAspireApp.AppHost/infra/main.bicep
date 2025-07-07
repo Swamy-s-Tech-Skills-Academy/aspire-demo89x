@@ -9,6 +9,10 @@ param environmentName string
 @description('The location used for all deployed resources')
 param location string
 
+@description('Id of the user or app to assign application roles')
+param principalId string = ''
+
+
 var tags = {
   'azd-env-name': environmentName
 }
@@ -24,6 +28,7 @@ module resources 'resources.bicep' = {
   params: {
     location: location
     tags: tags
+    principalId: principalId
   }
 }
 

@@ -3,6 +3,7 @@ using Azure.Provisioning.AppContainers;
 using Azure.Provisioning.ContainerRegistry;
 using Azure.Provisioning.OperationalInsights;
 using Azure.Provisioning.Primitives;
+using Azure.Provisioning.Redis;
 using Azure.Provisioning.Storage;
 using Microsoft.Extensions.Configuration;
 
@@ -11,40 +12,46 @@ namespace HelloAspireApp.AppHost;
 public sealed class FixedNameInfrastructureResolver(IConfiguration configuration) : InfrastructureResolver
 {
     private readonly IConfiguration _configuration = configuration;
-    private const string UniqueNamePrefix = "sv"; public override void ResolveProperties(ProvisionableConstruct construct, ProvisioningBuildOptions options)
+    private const string UniqueNamePrefix = "sv";
+
+    public override void ResolveProperties(ProvisionableConstruct construct, ProvisioningBuildOptions options)
     {
-        // string resourceGroup = _configuration["Azure:ResourceGroup"] ?? throw new Exception("Missing 'Azure:ResourceGroup' configuration");
-        string environmentSuffix = "-dev";
+        // Get environment suffix from environment variable first, then config, default to "D" (Development)
+        string environmentSuffix = Environment.GetEnvironmentVariable("AZURE_ENV_SUFFIX")
+                                  ?? _configuration["AZURE_ENV_SUFFIX"]
+                                  ?? "D";
+
+        // Debug: Log the environment suffix being used
+        Console.WriteLine($"[FixedNameInfrastructureResolver] Using environment suffix: {environmentSuffix} for {construct.GetType().Name}");
 
         switch (construct)
         {
             case StorageAccount storageAccount:
-                storageAccount.Name = $"{UniqueNamePrefix}{storageAccount.BicepIdentifier.ToLowerInvariant()}{environmentSuffix.Replace("-", string.Empty)}";
+                storageAccount.Name = $"{UniqueNamePrefix}{storageAccount.BicepIdentifier.ToLowerInvariant()}{environmentSuffix.ToLower()}";
                 break;
 
             case Azure.Provisioning.Redis.RedisResource redisCache:
-                redisCache.Name = $"{UniqueNamePrefix}-{redisCache.BicepIdentifier.ToLowerInvariant()}{environmentSuffix}";
+                redisCache.Name = $"{UniqueNamePrefix}-{redisCache.BicepIdentifier.ToLowerInvariant()}-{environmentSuffix}";
                 break;
 
             case ContainerApp containerApp:
-                containerApp.Name = $"{UniqueNamePrefix}-{containerApp.BicepIdentifier.ToLowerInvariant()}{environmentSuffix}";
+                containerApp.Name = $"{UniqueNamePrefix}-{containerApp.BicepIdentifier.ToLowerInvariant()}-{environmentSuffix}";
                 break;
 
             case ContainerRegistryService containerRegistry:
-                containerRegistry.Name = $"{UniqueNamePrefix}acr{environmentSuffix.Replace("-", string.Empty)}";
+                containerRegistry.Name = $"{UniqueNamePrefix}acr{environmentSuffix.ToLower()}";
                 break;
 
             case OperationalInsightsWorkspace logAnalyticsWorkspace:
-                logAnalyticsWorkspace.Name = $"{UniqueNamePrefix}-law{environmentSuffix}";
+                logAnalyticsWorkspace.Name = $"{UniqueNamePrefix}-law-{environmentSuffix}";
                 break;
 
             case ContainerAppManagedEnvironment containerAppEnvironment:
-                containerAppEnvironment.Name = $"{UniqueNamePrefix}-cae{environmentSuffix}";
+                containerAppEnvironment.Name = $"{UniqueNamePrefix}-cae-{environmentSuffix}";
                 break;
 
             default:
                 break;
         }
     }
-
 }

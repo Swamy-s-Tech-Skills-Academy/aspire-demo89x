@@ -8,7 +8,7 @@ param principalId string
 param principalName string
 
 resource cache 'Microsoft.Cache/redis@2024-11-01' existing = {
-  name: 'sv-cache-dev'
+  name: 'sv-cache-S'
 }
 
 resource cache_contributor 'Microsoft.Cache/redis/accessPolicyAssignments@2024-11-01' = {

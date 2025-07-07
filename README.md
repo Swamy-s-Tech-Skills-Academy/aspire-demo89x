@@ -1,253 +1,304 @@
-# .NET Aspire With AI Stack
+# .NET Aspire With Custom Azure Resource Naming
 
-A distributed AI-powered architecture built with .NET Aspire, PostgreSQL, Redis, RabbitMQ, Keycloak, Ollama, and VectorDB.
+A .NET Aspire project implementing enterprise-grade Azure resource naming conventions with automated infrastructure generation and custom naming enforcement.
 
-## Deployment
+## 🚀 Quick Start - Automated Deployment
+
+Navigate to the AppHost directory and run the deployment script:
 
 ```powershell
-D:\STSA\aspire-demo89x\src\HelloAspireApp.AppHost> az account show
+# Navigate to the AppHost directory
+cd src\HelloAspireApp.AppHost
 
-D:\STSA\aspire-demo89x\src\HelloAspireApp.AppHost> azd init
+# Deploy to Development environment (default)
+.\Deploy-WithCustomNames.ps1
 
-# This will create a new Azure Developer CLI project in the current directory.
-D:\STSA\aspire-demo89x\src\HelloAspireApp.AppHost> dotnet run --project .\HelloAspireApp.AppHost.csproj --publisher manifest --output-path ./aspire-manifest.json
+# Deploy to other environments
+.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "P"  # Production
+.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "T"  # Test
+.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "S"  # Staging
 
-D:\STSA\aspire-demo89x\src\HelloAspireApp.AppHost> azd config set alpha.infraSynth on
-D:\STSA\aspire-demo89x\src\HelloAspireApp.AppHost> azd infra synth
-
-azd auth login --scope https://management.azure.com//.default
-
-azd config set alpha.resourceGroupDeployments on
-
+# Then deploy to Azure
 azd up
 ```
 
-## Infrastructure Commands
+This script automatically:
 
-### `azd infra synth` vs `azd infra gen`
+1. Sets the `AZURE_ENV_SUFFIX` environment variable
+2. Generates infrastructure using `azd infra generate --force`
+3. Applies custom naming conventions to all resources
+4. Provides a summary of the naming changes
 
-**`azd infra synth`**
+All resources will follow the `sv-*-{env}` naming convention for easy identification and management in the Azure Portal.
 
-- **Purpose**: Automatically generates Infrastructure as Code (IaC) files from your .NET Aspire project
-- **Source**: Reads your Aspire AppHost configuration and translates it to Bicep templates
-- **Alpha Feature**: Currently requires `azd config set alpha.infraSynth on`
-- **Output**: Creates Bicep files in `infra/` folder based on your Aspire resource definitions
-- **Best for**: Aspire projects where you want automated infrastructure generation
-- **Maintenance**: Can be re-run to update infrastructure when Aspire config changes
-- **Custom Logic**: Respects your FixedNameInfrastructureResolver and other custom configurations
+---
 
-**`azd infra gen`**
+## 🏗️ Custom Azure Resource Naming Solution
 
-- **Purpose**: Generates basic IaC template files for manual customization
-- **Source**: Creates starter/skeleton infrastructure files based on common patterns
-- **Stable Feature**: Part of the standard AZD toolset
-- **Output**: Creates template Bicep files that require manual configuration
-- **Best for**: Projects where you want full manual control over infrastructure
-- **Maintenance**: Once generated, you manually maintain the files
-- **Custom Logic**: Requires manual implementation of naming and configuration logic
+This project implements a comprehensive, **fully automated** custom naming convention for Azure resources that addresses the challenges of maintaining consistent naming across environments when using .NET Aspire and Azure Developer CLI (azd).
 
-**Recommendation**: Use `azd infra synth` for this Aspire project since it will automatically respect your custom naming resolver and generate appropriate infrastructure.
+### 🎯 Problem Statement
 
-## Custom Resource Naming Implementation
+When using `azd infra generate` (or `azd infra synth`) with .NET Aspire:
 
-This project implements a comprehensive `FixedNameInfrastructureResolver` that provides consistent, predictable naming for Azure resources using a company-branded approach with the "sv" prefix.
+- Azure resources get auto-generated names with random suffixes (e.g., `acr-abc123xyz`)
+- Manual edits to Bicep files are overwritten each time infrastructure is regenerated
+- Maintaining consistent naming conventions across environments becomes challenging
+- Enterprise naming standards are difficult to enforce automatically
 
-### 🎯 Implementation Status
+### ✅ Solution: Two-Part Automated Approach
 
-#### ✅ Aspire Infrastructure Resolver (Automated)
+#### Part 1: FixedNameInfrastructureResolver (Aspire Resources)
 
-- Azure Redis Cache: `sv-cache-dev` (automatically applied)
-- Storage Accounts: `sv{identifier}dev` (when added via Aspire)
-- Any future Azure resources added via `builder.AddAzure*()` methods
-
-#### ✅ Container Apps Custom Naming
-
-- API Service: `sv-api-service-dev` (via Program.cs service names)
-- Web Frontend: `sv-web-frontend-dev` (via Program.cs service names)
-
-#### ✅ Infrastructure Resources (Manual Bicep Maintenance)
-
-- Container Registry: `svacrdev`
-- Log Analytics Workspace: `sv-law-dev`
-- Container Apps Environment: `sv-cae-dev`
-- Managed Identity: `sv-mi-dev`
-
-### 🔧 Architecture: Two-Part Naming System
-
-#### Part 1: FixedNameInfrastructureResolver (Automated)
-
-The resolver handles Azure resources added through Aspire's provisioning system:
+Handles Azure resources added through Aspire's builder pattern (e.g., `builder.AddAzureRedis()`):
 
 ```csharp
 public sealed class FixedNameInfrastructureResolver : InfrastructureResolver
 {
     private const string UniqueNamePrefix = "sv";
+    private readonly IConfiguration _configuration;
 
     public override void ResolveProperties(ProvisionableConstruct construct, ProvisioningBuildOptions options)
     {
-        string environmentSuffix = "-dev";
+        string environmentSuffix = _configuration["AZURE_ENV_SUFFIX"] ?? "D";
 
         switch (construct)
         {
             case Azure.Provisioning.Redis.RedisResource redisCache:
-                redisCache.Name = $"{UniqueNamePrefix}-{redisCache.BicepIdentifier.ToLowerInvariant()}{environmentSuffix}";
+                redisCache.Name = $"{UniqueNamePrefix}-{redisCache.BicepIdentifier.ToLowerInvariant()}-{environmentSuffix}";
                 break;
-            // ... other resource types
+            // Future: Add other Azure services as needed
         }
     }
 }
 ```
 
-**Registration in Program.cs:**
+#### Part 2: PowerShell Post-Processing Script (Core Infrastructure)
 
-```csharp
-builder.Services.Configure<AzureProvisioningOptions>(options =>
-{
-    options.ProvisioningBuildOptions.InfrastructureResolvers.Insert(0, new FixedNameInfrastructureResolver(builder.Configuration));
-});
-```
-
-#### Part 2: Manual Bicep Maintenance (Required)
-
-Core infrastructure resources generated by `azd infra synth` require manual naming updates in `infra/resources.bicep`:
-
-```bicep
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: 'sv-mi-dev'  // Custom name
-  location: location
-  tags: tags
-}
-
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
-  name: 'svacrdev'  // Custom name (no hyphens allowed)
-  location: location
-  // ...
-}
-```
-
-### 📋 Complete Naming Reference
-
-| Resource Type                  | Generated Name                              | Naming Source                          | Location                   |
-| ------------------------------ | ------------------------------------------- | -------------------------------------- | -------------------------- |
-| **Container Apps**             | `sv-api-service-dev`, `sv-web-frontend-dev` | Service names in Program.cs            | `*.tmpl.yaml` files        |
-| **Azure Redis Cache**          | `sv-cache-dev`                              | ✅ **FixedNameInfrastructureResolver** | `cache/cache.module.bicep` |
-| **Container Registry**         | `svacrdev`                                  | Manual Bicep edit                      | `resources.bicep`          |
-| **Log Analytics Workspace**    | `sv-law-dev`                                | Manual Bicep edit                      | `resources.bicep`          |
-| **Container Apps Environment** | `sv-cae-dev`                                | Manual Bicep edit                      | `resources.bicep`          |
-| **Managed Identity**           | `sv-mi-dev`                                 | Manual Bicep edit                      | `resources.bicep`          |
-
-### 🔄 Deployment Workflow
-
-1. **Develop**: Make changes to your Aspire application
-2. **Generate Infrastructure**: Run `azd infra synth --force`
-3. **Apply Custom Names**: Manually update `infra/resources.bicep` with custom names
-4. **Deploy**: Run `azd up`
-
-**Note**: The manual Bicep maintenance in step 3 is required because core infrastructure resources are generated by azd, not by Aspire's provisioning resolver.
-
-### 🏗️ Service Configuration
-
-Current service definitions in `Program.cs`:
-
-```csharp
-// Azure Redis Cache - automatically named via resolver
-var cache = builder.AddAzureRedis("cache");  // → sv-cache-dev
-
-// Container Apps - named via service identifiers
-var apiService = builder.AddProject<Projects.HelloAspireApp_ApiService>("sv-api-service-dev");
-builder.AddProject<Projects.HelloAspireApp_Web>("sv-web-frontend-dev")
-    .WithExternalHttpEndpoints()
-    .WithReference(cache)
-    .WithReference(apiService);
-```
-
-### 📁 Generated Infrastructure Files
-
-```text
-infra/
-├── main.bicep                           # Main deployment orchestration
-├── main.parameters.json                 # Deployment parameters
-├── resources.bicep                      # Core infrastructure (requires manual naming)
-├── cache/
-│   └── cache.module.bicep              # Azure Redis (auto-named via resolver)
-├── cache-roles/
-│   └── cache-roles.module.bicep        # Redis role assignments
-├── sv-api-service-dev.tmpl.yaml        # API service container app
-└── sv-web-frontend-dev.tmpl.yaml       # Web frontend container app
-```
-
-### 🎯 Naming Patterns Explained
-
-| Pattern            | Example        | Used For                                       |
-| ------------------ | -------------- | ---------------------------------------------- |
-| `sv-{service}-dev` | `sv-cache-dev` | Services that support hyphens                  |
-| `sv{service}dev`   | `svacrdev`     | Services that don't support hyphens (ACR)      |
-| `sv-{type}dev`     | `sv-law-dev`   | Infrastructure services with type abbreviation |
-
-**Environment Suffix**: Currently hardcoded to `-dev`. Can be made dynamic based on deployment environment.
-
-### 🚀 Current Status & Next Steps
-
-#### ✅ Completed Implementation
-
-1. **FixedNameInfrastructureResolver**: Successfully implemented and working for Azure resources
-2. **Container Apps Naming**: Updated service names in Program.cs for consistent naming
-3. **Infrastructure Naming**: Manual Bicep maintenance process established
-4. **Package Dependencies**: All required Azure.Provisioning packages installed
-5. **Build Verification**: Project builds successfully with no errors
-
-#### 🔄 Maintenance Workflow
-
-After running `azd infra synth --force`, manually update these resource names in `infra/resources.bicep`:
-
-```bicep
-# Required manual updates after azd infra synth
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: 'sv-mi-dev'  # Change from: 'mi-${resourceToken}'
-}
-
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
-  name: 'svacrdev'  # Change from: replace('acr-${resourceToken}', '-', '')
-}
-
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
-  name: 'sv-law-dev'  # Change from: 'law-${resourceToken}'
-}
-
-resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2024-02-02-preview' = {
-  name: 'sv-cae-dev'  # Change from: 'cae-${resourceToken}'
-}
-```
-
-#### 🎯 Ready for Deployment
-
-The project is now ready for deployment with consistent naming across all Azure resources:
+Handles core infrastructure resources that azd generates automatically:
 
 ```powershell
+# Deploy-WithCustomNames.ps1
+# Automatically applies custom naming after azd infra generate
+
+param(
+    [string]$EnvironmentSuffix = $env:AZURE_ENV_SUFFIX ?? "D",
+    [string]$UniquePrefix = "sv"
+)
+
+# 1. Set environment variable for resolver
+$env:AZURE_ENV_SUFFIX = $EnvironmentSuffix
+
+# 2. Generate infrastructure
+azd infra generate --force
+
+# 3. Apply custom naming patterns to Bicep files
+# ... (replaces default names with custom naming convention)
+```
+
+### 🌍 Environment Support
+
+| Environment | Suffix | Redis Cache  | Container Registry | Log Analytics | Container Apps Env | Managed Identity |
+| ----------- | ------ | ------------ | ------------------ | ------------- | ------------------ | ---------------- |
+| Development | `D`    | `sv-cache-D` | `svacrD`           | `sv-law-D`    | `sv-cae-D`         | `sv-mi-D`        |
+| Test        | `T`    | `sv-cache-T` | `svacrT`           | `sv-law-T`    | `sv-cae-T`         | `sv-mi-T`        |
+| Staging     | `S`    | `sv-cache-S` | `svacrS`           | `sv-law-S`    | `sv-cae-S`         | `sv-mi-S`        |
+| Production  | `P`    | `sv-cache-P` | `svacrP`           | `sv-law-P`    | `sv-cae-P`         | `sv-mi-P`        |
+
+### 🔄 Automated Workflow
+
+The complete workflow is now **fully automated** with a single script:
+
+```powershell
+# Deploy to any environment with one command
+.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "P"
 azd up
 ```
 
-All resources will follow the `sv-*-dev` naming convention for easy identification and management in the Azure Portal.
+**What happens automatically:**
+
+1. **Environment Setup**: Sets `AZURE_ENV_SUFFIX` environment variable
+2. **Infrastructure Generation**: Runs `azd infra generate --force`
+3. **Custom Naming Application**: Patches generated Bicep files with enterprise naming
+4. **Validation**: Provides summary of all resource names
+5. **Ready for Deployment**: Infrastructure is ready for `azd up`
+
+### 📋 Complete Resource Naming Reference
+
+| Resource Type                  | Example Name          | Naming Method                      | Location                |
+| ------------------------------ | --------------------- | ---------------------------------- | ----------------------- |
+| **Azure Redis Cache**          | `sv-cache-P`          | ✅ FixedNameInfrastructureResolver | Auto-generated Bicep    |
+| **Container Registry**         | `svacrp`              | 🔧 PowerShell Script               | `infra/resources.bicep` |
+| **Log Analytics Workspace**    | `sv-law-P`            | 🔧 PowerShell Script               | `infra/resources.bicep` |
+| **Container Apps Environment** | `sv-cae-P`            | 🔧 PowerShell Script               | `infra/resources.bicep` |
+| **Managed Identity**           | `sv-mi-P`             | 🔧 PowerShell Script               | `infra/resources.bicep` |
+| **API Service**                | `sv-api-service-dev`  | Manual (Program.cs)                | Service definitions     |
+| **Web Frontend**               | `sv-web-frontend-dev` | Manual (Program.cs)                | Service definitions     |
+
+### 🔧 Technical Implementation Details
+
+#### FixedNameInfrastructureResolver Registration
+
+```csharp
+// In Program.cs (AppHost)
+builder.Services.Configure<AzureProvisioningOptions>(options =>
+{
+    options.ProvisioningBuildOptions.InfrastructureResolvers.Insert(0,
+        new FixedNameInfrastructureResolver(builder.Configuration));
+});
+```
+
+#### PowerShell Script Key Replacements
+
+The script automatically replaces these patterns in `infra/resources.bicep`:
+
+```bicep
+// Before (azd generated):
+name: 'mi-${resourceToken}'
+
+// After (script applied):
+name: 'sv-mi-P'
+
+// Before:
+name: replace('acr-${resourceToken}', '-', '')
+
+// After:
+name: 'sv' + 'acr' + toLower('P')
+```
+
+### 🚀 Getting Started
+
+#### Prerequisites
+
+```powershell
+# Enable alpha features for azd
+azd config set alpha.infraSynth on
+azd config set alpha.resourceGroupDeployments on
+
+# Authenticate with Azure
+azd auth login --scope https://management.azure.com//.default
+```
+
+#### First-Time Setup
+
+```powershell
+# Navigate to AppHost directory
+cd src\HelloAspireApp.AppHost
+
+# Initialize azd project (if not done already)
+azd init
+
+# Deploy to Development (default)
+.\Deploy-WithCustomNames.ps1
+azd up
+```
+
+#### Multi-Environment Deployment
+
+```powershell
+# Deploy to Production
+.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "P"
+azd up
+
+# Deploy to Test
+.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "T"
+azd up
+```
+
+### 🎯 Benefits of This Approach
+
+✅ **Fully Automated**: No manual Bicep file editing required  
+✅ **Environment Agnostic**: Single script works for all environments  
+✅ **Regeneration Safe**: Can re-run `azd infra generate` anytime  
+✅ **Enterprise Ready**: Consistent naming across all resources  
+✅ **Maintainable**: Changes in one place affect entire naming convention  
+✅ **Future Proof**: Easy to add new resource types to the naming system
+
+### 🔍 Troubleshooting
+
+#### Common Issues
+
+**Issue**: Resources still have default names after running script
+
+```powershell
+# Solution: Ensure you're in the correct directory
+cd src\HelloAspireApp.AppHost
+.\Deploy-WithCustomNames.ps1
+```
+
+**Issue**: Script reports "No changes needed" but names are wrong
+
+```powershell
+# Solution: Re-generate infrastructure first
+azd infra generate --force
+.\Deploy-WithCustomNames.ps1
+```
+
+**Issue**: FixedNameInfrastructureResolver not working
+
+```powershell
+# Solution: Verify environment variable is set
+$env:AZURE_ENV_SUFFIX = "P"
+# Check Program.cs has resolver registration
+```
+
+### 📁 Generated File Structure
+
+After running the script, your infrastructure will look like:
+
+```text
+infra/
+├── main.bicep                              # Main orchestration
+├── main.parameters.json                    # Parameters (includes environmentSuffix)
+├── resources.bicep                         # ✅ Fixed: Custom named core resources
+├── cache/
+│   └── cache.module.bicep                  # ✅ Auto: sv-cache-P (via resolver)
+└── sv-api-service-dev.tmpl.yaml           # Container app definitions
+```
+
+### ⚡ Script Output Example
+
+```powershell
+🚀 Deploying with Custom Resource Names
+   Environment Suffix: P
+   Unique Prefix: sv
+
+📝 Set AZURE_ENV_SUFFIX=P
+
+🔨 Generating infrastructure with azd...
+✅ Infrastructure generated successfully
+
+🔧 Applying custom resource names...
+   ✅ Fixed: name: 'mi-${resourceToken}'
+   ✅ Fixed: name: replace('acr-${resourceToken}', '-', '')
+   ✅ Fixed: name: 'law-${resourceToken}'
+   ✅ Fixed: name: 'cae-${resourceToken}'
+
+🎉 Resource names fixed successfully!
+
+📋 Final Resource Names:
+   Managed Identity: sv-mi-P
+   Container Registry: svacrp
+   Log Analytics: sv-law-P
+   Container Apps Env: sv-cae-P
+   Redis Cache: sv-cache-P (via FixedNameInfrastructureResolver)
+
+🎯 Ready for deployment! Run:
+   azd up
+
+✨ All resource names are now consistent with your naming convention!
+```
 
 ---
 
-## 🎉 Implementation Summary
+## 📚 Legacy Information
 
-**Question**: Can't we use FixedNameInfrastructureResolver?
+### Manual Commands (Not Recommended - Use Script Instead)
 
-**Answer**: ✅ **YES! The FixedNameInfrastructureResolver IS working correctly.**
-
-The implementation uses a two-part approach:
-
-1. **Automated**: Aspire Infrastructure Resolver handles Azure services (Redis Cache: `sv-cache-dev` ✅)
-2. **Semi-Automated**: Manual Bicep maintenance for core infrastructure (ACR, LAW, CAE, MI ✅)
-
-All Azure resources now use consistent `sv-*-dev` naming with proper company branding!
-
-```text
-SUCCESS: Your app is ready for the cloud!
-Run azd up to provision and deploy your app to Azure.
-Run azd add to add new Azure components to your project.
-Run azd infra gen to generate IaC for your project to disk, allowing you to manually manage it.
-See ./next-steps.md for more information on configuring your app.
+```powershell
+# Old manual workflow (replaced by Deploy-WithCustomNames.ps1)
+$env:AZURE_ENV_SUFFIX = "P"
+azd infra generate --force
+# Manual Bicep file editing required...
+azd up
 ```
