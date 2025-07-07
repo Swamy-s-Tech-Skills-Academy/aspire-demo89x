@@ -10,7 +10,7 @@ param environmentName string
 param location string
 
 @description('Environment suffix for resource naming (D/T/S/P)')
-param environmentSuffix string = 'D'
+param environmentSuffix string
 
 var tags = {
   'azd-env-name': environmentName
@@ -42,9 +42,9 @@ module cache_roles 'cache-roles/cache-roles.module.bicep' = {
   name: 'cache-roles'
   scope: rg
   params: {
-    environmentSuffix: environmentSuffix
     principalId: resources.outputs.MANAGED_IDENTITY_PRINCIPAL_ID
     principalName: resources.outputs.MANAGED_IDENTITY_NAME
+    environmentSuffix: environmentSuffix
   }
 }
 

@@ -49,7 +49,7 @@ else {
 }
 
 # Step 4: Summary
-Write-Host "`n📋 Final Resource Names:" -ForegroundColor Cyan
+Write-Host "`n📋 Final Resource Names (Dynamic):" -ForegroundColor Cyan
 Write-Host "   Managed Identity: $UniquePrefix-mi-$EnvironmentSuffix" -ForegroundColor White
 Write-Host "   Container Registry: $($UniquePrefix)acr$($EnvironmentSuffix.ToLower())" -ForegroundColor White
 Write-Host "   Log Analytics: $UniquePrefix-law-$EnvironmentSuffix" -ForegroundColor White
@@ -60,4 +60,4 @@ Write-Host "   Redis Cache: $UniquePrefix-cache-$EnvironmentSuffix (via FixedNam
 Write-Host "`n🎯 Ready for deployment! Run:" -ForegroundColor Cyan
 Write-Host "   azd up" -ForegroundColor Yellow
 
-Write-Host "`n✨ All resource names are now consistent with your naming convention!" -ForegroundColor Green
+Write-Host "`n✨ All resource names are now dynamic and consistent!" -ForegroundColor Green

@@ -9,7 +9,7 @@
       "value": "${AZURE_LOCATION}"
     },
     "environmentSuffix": {
-      "value": "${AZURE_ENV_SUFFIX=D}"
+      "value": "${AZURE_ENV_SUFFIX}"
     }
   }
 }

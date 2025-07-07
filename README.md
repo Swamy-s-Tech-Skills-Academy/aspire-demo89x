@@ -175,6 +175,8 @@ name: 'sv' + 'acr' + toLower('P')
 azd config set alpha.infraSynth on
 azd config set alpha.resourceGroupDeployments on
 
+azd infra generate --force
+
 # Authenticate with Azure
 azd auth login --scope https://management.azure.com//.default
 ```

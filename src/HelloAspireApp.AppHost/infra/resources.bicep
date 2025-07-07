@@ -2,7 +2,7 @@
 param location string = resourceGroup().location
 
 @description('Environment suffix for resource naming (D/T/S/P)')
-param environmentSuffix string = 'D'
+param environmentSuffix string
 
 @description('Tags that will be applied to all resources')
 param tags object = {}

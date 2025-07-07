@@ -3,7 +3,7 @@ param principalId string
 param principalName string
 
 @description('Environment suffix for resource naming (D/T/S/P)')
-param environmentSuffix string = 'D'
+param environmentSuffix string
 
 resource cache 'Microsoft.Cache/redis@2024-11-01' existing = {
   name: 'sv-cache-${environmentSuffix}'
