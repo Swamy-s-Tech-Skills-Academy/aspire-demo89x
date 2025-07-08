@@ -1,14 +1,12 @@
-@description('The location for the resource(s) to be deployed.')
-param location string = resourceGroup().location
-
-param cache_outputs_name string
-
 param principalId string
 
 param principalName string
 
+@description('Environment suffix for resource naming (D/T/S/P)')
+param environmentSuffix string
+
 resource cache 'Microsoft.Cache/redis@2024-11-01' existing = {
-  name: 'sv-cache-S'
+  name: 'sv-cache-${environmentSuffix}'
 }
 
 resource cache_contributor 'Microsoft.Cache/redis/accessPolicyAssignments@2024-11-01' = {

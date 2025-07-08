@@ -29,51 +29,27 @@ catch {
     exit 1
 }
 
-# Step 3: Apply custom naming to Bicep files
-Write-Host "`n🔧 Applying custom resource names..." -ForegroundColor Cyan
+# Step 3: Infrastructure is now dynamic - no manual edits needed!
+Write-Host "`n✅ Infrastructure templates are now dynamic!" -ForegroundColor Cyan
+Write-Host "   Resource names will be based on environment suffix: $EnvironmentSuffix" -ForegroundColor Green
 
-$resourcesBicepPath = "infra/resources.bicep"
-if (-not (Test-Path $resourcesBicepPath)) {
-    Write-Error "❌ File not found: $resourcesBicepPath"
-    exit 1
-}
-
-# Read and fix resources.bicep
-$content = Get-Content $resourcesBicepPath -Raw
-$replacements = @{
-    # Managed Identity: mi-${resourceToken} -> sv-mi-P
-    "name: 'mi-`\$\{resourceToken\}'"                      = "name: '$UniquePrefix-mi-$EnvironmentSuffix'"
-    
-    # Container Registry: replace('acr-${resourceToken}', '-', '') -> svacrs  
-    "name: replace\('acr-`\$\{resourceToken\}', '-', ''\)" = "name: '$($UniquePrefix)acr$($EnvironmentSuffix.ToLower())'"
-    
-    # Log Analytics: law-${resourceToken} -> sv-law-P
-    "name: 'law-`\$\{resourceToken\}'"                     = "name: '$UniquePrefix-law-$EnvironmentSuffix'"
-    
-    # Container Apps Environment: cae-${resourceToken} -> sv-cae-P
-    "name: 'cae-`\$\{resourceToken\}'"                     = "name: '$UniquePrefix-cae-$EnvironmentSuffix'"
-}
-
-$modified = $false
-foreach ($find in $replacements.Keys) {
-    $replace = $replacements[$find]
-    if ($content -match $find) {
-        $content = $content -replace $find, $replace
-        $modified = $true
-        Write-Host "   ✅ Fixed: $($find.Replace('`\$\{resourceToken\}', '${resourceToken}'))" -ForegroundColor Green
+# Verify that the main.parameters.json has the correct parameter
+$mainParamsPath = "infra/main.parameters.json"
+if (Test-Path $mainParamsPath) {
+    $paramsContent = Get-Content $mainParamsPath -Raw | ConvertFrom-Json
+    if ($paramsContent.parameters.environmentSuffix) {
+        Write-Host "   ✅ main.parameters.json includes environmentSuffix parameter" -ForegroundColor Green
+    }
+    else {
+        Write-Host "   ⚠️  main.parameters.json missing environmentSuffix parameter" -ForegroundColor Yellow
     }
 }
-
-if ($modified) {
-    $content | Set-Content $resourcesBicepPath -NoNewline
-    Write-Host "🎉 Resource names fixed successfully!" -ForegroundColor Green
-}
 else {
-    Write-Host "ℹ️  No changes needed - resource names already correct" -ForegroundColor Blue
+    Write-Host "   ⚠️  main.parameters.json not found" -ForegroundColor Yellow
 }
 
 # Step 4: Summary
-Write-Host "`n📋 Final Resource Names:" -ForegroundColor Cyan
+Write-Host "`n📋 Final Resource Names (Dynamic):" -ForegroundColor Cyan
 Write-Host "   Managed Identity: $UniquePrefix-mi-$EnvironmentSuffix" -ForegroundColor White
 Write-Host "   Container Registry: $($UniquePrefix)acr$($EnvironmentSuffix.ToLower())" -ForegroundColor White
 Write-Host "   Log Analytics: $UniquePrefix-law-$EnvironmentSuffix" -ForegroundColor White
@@ -84,4 +60,4 @@ Write-Host "   Redis Cache: $UniquePrefix-cache-$EnvironmentSuffix (via FixedNam
 Write-Host "`n🎯 Ready for deployment! Run:" -ForegroundColor Cyan
 Write-Host "   azd up" -ForegroundColor Yellow
 
-Write-Host "`n✨ All resource names are now consistent with your naming convention!" -ForegroundColor Green
+Write-Host "`n✨ All resource names are now dynamic and consistent!" -ForegroundColor Green
