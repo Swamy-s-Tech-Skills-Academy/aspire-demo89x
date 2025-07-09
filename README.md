@@ -179,6 +179,15 @@ azd infra generate --force
 
 # Authenticate with Azure
 azd auth login --scope https://management.azure.com//.default
+
+$env:AZURE_ENV_SUFFIX='D'
+azd up -e aspire-dev-001
+
+$env:AZURE_ENV_SUFFIX='T'
+azd up -e aspire-test-001
+
+$env:AZURE_ENV_SUFFIX='S'
+azd up -e aspire-stage-001
 ```
 
 #### First-Time Setup
@@ -304,3 +313,4 @@ azd infra generate --force
 # Manual Bicep file editing required...
 azd up
 ```
+

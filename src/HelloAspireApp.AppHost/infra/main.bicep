@@ -36,6 +36,7 @@ module cache 'cache/cache.module.bicep' = {
   scope: rg
   params: {
     location: location
+    environmentSuffix: environmentSuffix
   }
 }
 module cache_roles 'cache-roles/cache-roles.module.bicep' = {
