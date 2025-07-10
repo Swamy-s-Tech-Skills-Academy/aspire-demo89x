@@ -20,6 +20,7 @@ env:
   AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
   AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
   AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+  AZURE_ENV_SUFFIX: ${{ vars.AZURE_ENV_SUFFIX }}
 
 defaults:
   run:
@@ -28,6 +29,7 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: dev
 
     steps:
       - name: Checkout
@@ -50,9 +52,6 @@ jobs:
 
       - name: Print Environment Variables
         run: env
-
-      - name: Set environment variables
-        run: echo "AZURE_LOCATION=eastus" >> $GITHUB_ENV
 
       - name: Provision Infrastructure
         run: azd provision --no-prompt
