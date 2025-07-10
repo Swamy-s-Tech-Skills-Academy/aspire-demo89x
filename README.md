@@ -314,3 +314,10 @@ azd infra generate --force
 azd up
 ```
 
+## Federation Credentials
+
+```text
+repo:Swamy-s-Tech-Skills-Academy/aspire-demo89x:ref:refs/heads/main
+
+repo:Swamy-s-Tech-Skills-Academy/aspire-demo89x:environment:Dev
+```
