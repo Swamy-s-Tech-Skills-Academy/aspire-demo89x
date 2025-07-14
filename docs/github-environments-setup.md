@@ -68,27 +68,49 @@ With this setup, your Azure resources will be named as follows:
 
 ```text
 Resource Group: rg-Dev-eastus
-Managed Identity: sv-mi-D
-Container Registry: svacrd
-Log Analytics: sv-law-D
-Container Apps Environment: sv-cae-D
-Redis Cache: sv-cache-D
+Managed Identity: sv-mi-D-use
+Container Registry: svacrd-use
+Log Analytics: sv-law-D-use
+Container Apps Environment: sv-cae-D-use
+Redis Cache: sv-cache-D-use
+```
+
+### Dev Environment (centralus)
+
+```text
+Resource Group: rg-Dev-centralus
+Managed Identity: sv-mi-D-usc
+Container Registry: svacrd-usc
+Log Analytics: sv-law-D-usc
+Container Apps Environment: sv-cae-D-usc
+Redis Cache: sv-cache-D-usc
 ```
 
 ### Test Environment (eastus)
 
 ```text
 Resource Group: rg-Test-eastus
-Managed Identity: sv-mi-T
-Container Registry: svacrt
-Log Analytics: sv-law-T
-Container Apps Environment: sv-cae-T
-Redis Cache: sv-cache-T
+Managed Identity: sv-mi-T-use
+Container Registry: svacrt-use
+Log Analytics: sv-law-T-use
+Container Apps Environment: sv-cae-T-use
+Redis Cache: sv-cache-T-use
+```
+
+### Test Environment (centralus)
+
+```text
+Resource Group: rg-Test-centralus
+Managed Identity: sv-mi-T-usc
+Container Registry: svacrt-usc
+Log Analytics: sv-law-T-usc
+Container Apps Environment: sv-cae-T-usc
+Redis Cache: sv-cache-T-usc
 ```
 
 ### Multi-Region Support
 
-If deploying to multiple regions (eastus, centralus), you'll get:
+Each environment can be deployed to multiple regions, creating separate resource groups:
 
 - `rg-Dev-eastus` and `rg-Dev-centralus`
 - `rg-Test-eastus` and `rg-Test-centralus`
@@ -134,10 +156,10 @@ The workflows are now configured with a **staged deployment approach**:
 ### Features
 
 1. **Environment-driven configuration** based on GitHub Environment variables
-2. **Multi-region support** for both Dev and Test environments
+2. **Multi-region support** for both Dev and Test environments with region-specific resource naming
 3. **Staged deployments** with Test requiring Dev success
 4. **Manual approval gates** for Test environment
-5. **Custom resource naming** following `sv-*-{env}` pattern
+5. **Custom resource naming** following `sv-*-{env}-{region}` pattern (e.g., `sv-mi-D-use`)
 
 ## ✅ Verification
 

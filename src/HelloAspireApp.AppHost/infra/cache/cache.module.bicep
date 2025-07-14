@@ -4,8 +4,11 @@ param location string = resourceGroup().location
 @description('Environment suffix for resource naming (D/T/S/P)')
 param environmentSuffix string
 
+@description('Region abbreviation for resource naming (use/usc/etc)')
+param regionAbbreviation string
+
 resource cache 'Microsoft.Cache/redis@2024-11-01' = {
-  name: 'sv-cache-${environmentSuffix}'
+  name: 'sv-cache-${environmentSuffix}-${regionAbbreviation}'
   location: location
   properties: {
     sku: {

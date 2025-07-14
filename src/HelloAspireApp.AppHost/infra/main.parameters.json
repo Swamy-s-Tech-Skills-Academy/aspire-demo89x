@@ -10,6 +10,9 @@
     },
     "environmentSuffix": {
       "value": "${AZURE_ENV_SUFFIX}"
+    },
+    "resourceGroupName": {
+      "value": "${AZURE_RESOURCE_GROUP}"
     }
   }
 }

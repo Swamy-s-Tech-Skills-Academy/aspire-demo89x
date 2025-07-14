@@ -4,17 +4,20 @@ param location string = resourceGroup().location
 @description('Environment suffix for resource naming (D/T/S/P)')
 param environmentSuffix string
 
+@description('Region abbreviation for resource naming (use/usc/etc)')
+param regionAbbreviation string
+
 @description('Tags that will be applied to all resources')
 param tags object = {}
 
 resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: 'sv-mi-${environmentSuffix}'
+  name: 'sv-mi-${environmentSuffix}-${regionAbbreviation}'
   location: location
   tags: tags
 }
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
-  name: 'svacr${toLower(environmentSuffix)}'
+  name: 'svacr${toLower(environmentSuffix)}${regionAbbreviation}'
   location: location
   sku: {
     name: 'Basic'
@@ -40,7 +43,7 @@ resource caeMiRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01
 }
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
-  name: 'sv-law-${environmentSuffix}'
+  name: 'sv-law-${environmentSuffix}-${regionAbbreviation}'
   location: location
   properties: {
     sku: {
@@ -51,7 +54,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10
 }
 
 resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2024-02-02-preview' = {
-  name: 'sv-cae-${environmentSuffix}'
+  name: 'sv-cae-${environmentSuffix}-${regionAbbreviation}'
   location: location
   properties: {
     workloadProfiles: [

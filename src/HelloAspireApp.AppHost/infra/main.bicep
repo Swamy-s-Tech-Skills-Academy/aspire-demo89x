@@ -12,12 +12,32 @@ param location string
 @description('Environment suffix for resource naming (D/T/S/P)')
 param environmentSuffix string
 
+@description('Resource group name override (optional)')
+param resourceGroupName string = ''
+
+// Function to convert Azure location to region abbreviation
+var regionAbbreviations = {
+  eastus: 'use'
+  centralus: 'usc'
+  westus: 'usw'
+  westus2: 'usw2'
+  eastus2: 'use2'
+  southcentralus: 'ussc'
+  northcentralus: 'usnc'
+  westcentralus: 'uswc'
+}
+
+var regionAbbreviation = regionAbbreviations[?location] ?? 'unk'
+
 var tags = {
   'azd-env-name': environmentName
 }
 
+// Use resourceGroupName if provided, otherwise fall back to default naming
+var actualResourceGroupName = !empty(resourceGroupName) ? resourceGroupName : 'rg-${environmentName}'
+
 resource rg 'Microsoft.Resources/resourceGroups@2022-09-01' = {
-  name: 'rg-${environmentName}'
+  name: actualResourceGroupName
   location: location
   tags: tags
 }
@@ -28,6 +48,7 @@ module resources 'resources.bicep' = {
     location: location
     tags: tags
     environmentSuffix: environmentSuffix
+    regionAbbreviation: regionAbbreviation
   }
 }
 
@@ -37,6 +58,7 @@ module cache 'cache/cache.module.bicep' = {
   params: {
     location: location
     environmentSuffix: environmentSuffix
+    regionAbbreviation: regionAbbreviation
   }
 }
 module cache_roles 'cache-roles/cache-roles.module.bicep' = {
@@ -46,6 +68,7 @@ module cache_roles 'cache-roles/cache-roles.module.bicep' = {
     principalId: resources.outputs.MANAGED_IDENTITY_PRINCIPAL_ID
     principalName: resources.outputs.MANAGED_IDENTITY_NAME
     environmentSuffix: environmentSuffix
+    regionAbbreviation: regionAbbreviation
   }
 }
 
