@@ -11,7 +11,7 @@ on:
         description: "The version of .NET to use"
         required: false
         type: string
-        default: "9.x.x"
+        default: "8.x.x"
       working-directory:
         description: "The working directory for the deployment"
         required: false

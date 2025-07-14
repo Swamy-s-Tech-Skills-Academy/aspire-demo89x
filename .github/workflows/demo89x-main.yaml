@@ -52,6 +52,6 @@ jobs:
     with:
       environment-name: ${{ matrix.environment }}
       working-directory: "./src/HelloAspireApp.AppHost"
-      dotnet-version: "9.x.x"
+      dotnet-version: "8.x.x"
       azure-location: ${{ matrix.region }}
       resource-group: rg-${{ matrix.environment }}-${{ matrix.region }}

@@ -15,7 +15,7 @@ on:
         description: "The version of .NET to use"
         required: false
         type: string
-        default: "9.x.x"
+        default: "8.x.x"
 
 jobs:
   run-test:
