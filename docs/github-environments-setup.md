@@ -31,7 +31,16 @@ Go to: **Repository Settings → Environments → New environment**
 
 **Environment Name:** `Test`
 
-### Environment Variables
+### Environment Protection Rules
+
+⚠️ **Important**: Configure manual approval for Test environment:
+
+1. In the Test environment settings, go to **Protection rules**
+2. Check **Required reviewers**
+3. Add yourself or your team members as required reviewers
+4. This ensures Test deployments require manual approval after Dev deployment completes
+
+### Test Environment Variables
 
 | Variable           | Value             | Description                            |
 | ------------------ | ----------------- | -------------------------------------- |
@@ -101,18 +110,34 @@ If deploying to multiple regions (eastus, centralus), you'll get:
 2. Click **Add variable**
 3. Add each variable from the tables above
 
-### Step 3: Repeat for Test Environment
+### Step 3: Configure Test Environment with Approval
 
-Repeat steps 1-2 for the `Test` environment with the appropriate values.
+1. Create the `Test` environment following steps 1-2
+2. Add the environment variables for Test
+3. **Enable Protection Rules for Test environment:**
+   - Go to Test environment settings
+   - Scroll to **Environment protection rules**
+   - Check **Required reviewers**
+   - Add team members who can approve Test deployments
+   - Save the protection rules
 
 ## 🚀 Workflow Integration
 
-The workflows are now configured to:
+The workflows are now configured with a **staged deployment approach**:
 
-1. **Auto-select environment suffix** based on the matrix environment name
-2. **Use consistent working directories** across all workflows
-3. **Generate proper resource group names** following the pattern `rg-{Environment}-{Region}`
-4. **Pass environment suffix to azd** for custom resource naming
+### Deployment Sequence
+
+1. **Build & Test** → All code is built and tested first
+2. **Deploy to Dev** → Automatic deployment to both Dev regions (eastus, centralus)
+3. **Deploy to Test** → **Requires manual approval** + waits for Dev deployment completion
+
+### Features
+
+1. **Environment-driven configuration** based on GitHub Environment variables
+2. **Multi-region support** for both Dev and Test environments
+3. **Staged deployments** with Test requiring Dev success
+4. **Manual approval gates** for Test environment
+5. **Custom resource naming** following `sv-*-{env}` pattern
 
 ## ✅ Verification
 

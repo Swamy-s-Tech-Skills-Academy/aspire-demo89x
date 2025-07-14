@@ -109,15 +109,19 @@ azd env set AZURE_ENV_SUFFIX $EnvironmentSuffix
 azd up
 ```
 
-**CI/CD Pipeline:**
+**CI/CD Pipeline - Staged Deployment:**
 
 ```yaml
-# GitHub Actions workflow
-- name: Set Environment Suffix
-  run: azd env set AZURE_ENV_SUFFIX ${{ matrix.environment-suffix }}
+# GitHub Actions staged workflow
+jobs:
+  build-and-test: # ✅ First - validate code
 
-- name: Deploy to Azure
-  run: azd up --confirm
+  deploy-dev: # ✅ Second - automatic Dev deployment
+    needs: build-and-test
+
+  deploy-test: # ⚠️ Third - manual approval + Dev success required
+    needs: deploy-dev
+    environment: Test # Requires manual approval
 ```
 
 ### 🌍 Environment Support
