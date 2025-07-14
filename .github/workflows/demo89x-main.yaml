@@ -27,34 +27,41 @@ defaults:
     working-directory: src/HelloAspireApp.AppHost
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    environment: Dev
+  build-and-test:
+    uses: ./.github/workflows/demo89x-build-test.yaml
+    secrets: inherit
+    with:
+      project-name: aspire-demo89x
+      solution-path: aspire-demo89x.sln
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  # build:
+  #   runs-on: ubuntu-latest
+  #   environment: Dev
 
-      - name: Install azd
-        uses: Azure/setup-azd@v2
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: |
-            8.x.x
-            9.x.x
+  #     - name: Install azd
+  #       uses: Azure/setup-azd@v2
 
-      - name: Log in with Azure (Federated Credentials)
-        run: |
-          azd auth login --client-id ${{ env.AZURE_CLIENT_ID }} --federated-credential-provider "github" --tenant-id ${{ env.AZURE_TENANT_ID }}
-        shell: pwsh
+  #     - name: Setup .NET
+  #       uses: actions/setup-dotnet@v4
+  #       with:
+  #         dotnet-version: |
+  #           8.x.x
+  #           9.x.x
 
-      - name: Print Environment Variables
-        run: env
+  #     - name: Log in with Azure (Federated Credentials)
+  #       run: |
+  #         azd auth login --client-id ${{ env.AZURE_CLIENT_ID }} --federated-credential-provider "github" --tenant-id ${{ env.AZURE_TENANT_ID }}
+  #       shell: pwsh
 
-      - name: Provision Infrastructure
-        run: azd provision --no-prompt
+  #     - name: Print Environment Variables
+  #       run: env
 
-      - name: Deploy Application to Azure
-        run: azd deploy --no-prompt
+  #     - name: Provision Infrastructure
+  #       run: azd provision --no-prompt
+
+  #     - name: Deploy Application to Azure
+  #       run: azd deploy --no-prompt
