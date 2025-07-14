@@ -16,7 +16,7 @@ on:
         description: "The working directory for the deployment"
         required: false
         type: string
-        default: "./src/AspireDemo2.AppHost"
+        default: "./src/HelloAspireApp.AppHost"
       azure-location:
         description: "Azure region for deployment (defaults to environment variable)"
         required: false
