@@ -1,51 +1,88 @@
-# Run when commits are pushed to swamy/24mar-work
+name: Deploy .NET Aspire Application to Azure
+
 on:
-  workflow_dispatch:
-  push:
-    # Run when commits are pushed to mainline branch (main or master)
-    # Set this to the mainline branch you are using
-    branches:
-      - main
-
-# Set up permissions for deploying with secretless Azure federated credentials
-# https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux#set-up-azure-login-with-openid-connect-authentication
-permissions:
-  id-token: write
-  contents: read
-
-env:
-  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-  AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
-  AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
-  AZURE_ENV_SUFFIX: ${{ vars.AZURE_ENV_SUFFIX }}
-
-defaults:
-  run:
-    working-directory: src/HelloAspireApp.AppHost
+  workflow_call:
+    inputs:
+      environment-name:
+        description: "The name of the environment to deploy to (e.g., Dev, Test, Prod)"
+        required: true
+        type: string
+      dotnet-version:
+        description: "The version of .NET to use"
+        required: false
+        type: string
+        default: "9.x.x"
+      working-directory:
+        description: "The working directory for the deployment"
+        required: false
+        type: string
+        default: "./src/AspireDemo2.AppHost"
+      azure-location:
+        description: "Azure region for deployment (defaults to environment variable)"
+        required: false
+        type: string
+        default: ""
+      resource-group:
+        description: "Resource group name for deployment (defaults to environment variable)"
+        required: false
+        type: string
+        default: ""
+      environment-suffix:
+        description: "Optional suffix to append to the environment name for region-specific deployments"
+        required: false
+        type: string
+        default: ""
 
 jobs:
-  build:
+  deploy:
+    name: Deploy to ${{ inputs.environment-name }} (${{ inputs.azure-location }})
     runs-on: ubuntu-latest
-    environment: Dev
+    environment: ${{ inputs.environment-name }}
+
+    env:
+      AZD_INITIAL_ENVIRONMENT_CONFIG: ${{ secrets.AZD_INITIAL_ENVIRONMENT_CONFIG }}
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_ENV_NAME: ${{ format('{0}-{1}', inputs.environment-name, inputs.azure-location) }}
+      AZURE_LOCATION: ${{ inputs.azure-location }}
+      AZURE_RESOURCE_GROUP: ${{ inputs.resource-group }}
+      AZD_ALPHA_ENABLE_RESOURCEGROUPDEPLOYMENTS: "true"
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      # Add caching for faster builds
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
       - name: Install azd
         uses: Azure/setup-azd@v2
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: |
-            8.x.x
-            9.x.x
+      - name: Install .NET Aspire workload
+        run: dotnet workload install aspire
+
+      - name: Restore .NET workloads
+        run: dotnet workload restore
 
       - name: Log in with Azure (Federated Credentials)
+        if: ${{ env.AZURE_CLIENT_ID != '' }}
         run: |
           azd auth login --client-id ${{ env.AZURE_CLIENT_ID }} --federated-credential-provider "github" --tenant-id ${{ env.AZURE_TENANT_ID }}
         shell: pwsh
@@ -53,8 +90,93 @@ jobs:
       - name: Print Environment Variables
         run: env
 
+      # Ensure environment name and resource group are set for azd
+      - name: Set up environment for azd
+        run: |
+          # Create a unique environment name based on environment and region
+          echo "Setting up azd environment with name: ${{ env.AZURE_ENV_NAME }}"
+          azd env new ${{ env.AZURE_ENV_NAME }} --no-prompt
+
+          # Set the location explicitly
+          echo "Setting Azure location to: ${{ env.AZURE_LOCATION }}"
+          azd env set AZURE_LOCATION ${{ env.AZURE_LOCATION }}
+
+          # Set the resource group name explicitly
+          echo "Setting resource group to: ${{ env.AZURE_RESOURCE_GROUP }}"
+          azd env set AZURE_RESOURCE_GROUP ${{ env.AZURE_RESOURCE_GROUP }}
+
+      # Validate infrastructure changes before deployment (Azure best practice)
+      - name: Validate Infrastructure Changes
+        run: azd provision --preview --no-prompt
+        continue-on-error: true
+
       - name: Provision Infrastructure
         run: azd provision --no-prompt
 
-      - name: Deploy Application to Azure
+      - name: Deploy Application
         run: azd deploy --no-prompt
+
+      # Post-deployment health check
+      - name: Verify Application Health
+        run: |
+          # Extract app URLs from azd output
+          echo "Extracting deployed application endpoints..."
+          APP_ENDPOINTS=$(azd show --output json | jq -r '.services[] | select(.name) | "\(.name): \(.bindings[0].protocol)://\(.bindings[0].host)"')
+
+          if [ -z "$APP_ENDPOINTS" ]; then
+            echo "Warning: No application endpoints found in azd output."
+            exit 0
+          fi
+
+          echo "Deployed endpoints:"
+          echo "$APP_ENDPOINTS"
+
+          # Get the web frontend URL if available
+          WEB_URL=$(echo "$APP_ENDPOINTS" | grep -i "webfrontend" | cut -d ':' -f 2- | tr -d ' ')
+          if [ -n "$WEB_URL" ]; then
+            # Perform health check with retry logic
+            echo "Verifying web frontend health at $WEB_URL"
+            
+            # Wait for app to be fully available (retry for 2 minutes)
+            for i in {1..12}; do
+              HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $WEB_URL || echo "000")
+              
+              if [ "$HTTP_STATUS" == "200" ]; then
+                echo "✅ Web frontend is healthy!"
+                break
+              else
+                echo "⏳ Web frontend not healthy yet (Status: $HTTP_STATUS), retrying in 10s..."
+                sleep 10
+              fi
+              
+              # Exit with warning if we've reached the last attempt
+              if [ $i -eq 12 ] && [ "$HTTP_STATUS" != "200" ]; then
+                echo "⚠️ Warning: Health check did not succeed after 2 minutes, but continuing deployment."
+              fi
+            done
+          fi
+
+          # Get the API URL if available
+          API_URL=$(echo "$APP_ENDPOINTS" | grep -i "apiservice" | cut -d ':' -f 2- | tr -d ' ')
+          if [ -n "$API_URL" ]; then
+            # Perform health check with retry logic
+            echo "Verifying API service health at $API_URL"
+            
+            # Wait for API to be fully available (retry for 2 minutes)
+            for i in {1..12}; do
+              HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $API_URL/weatherforecast || echo "000")
+              
+              if [ "$HTTP_STATUS" == "200" ]; then
+                echo "✅ API service is healthy!"
+                break
+              else
+                echo "⏳ API service not healthy yet (Status: $HTTP_STATUS), retrying in 10s..."
+                sleep 10
+              fi
+              
+              # Exit with warning if we've reached the last attempt
+              if [ $i -eq 12 ] && [ "$HTTP_STATUS" != "200" ]; then
+                echo "⚠️ Warning: API health check did not succeed after 2 minutes, but continuing deployment."
+              fi
+            done
+          fi
