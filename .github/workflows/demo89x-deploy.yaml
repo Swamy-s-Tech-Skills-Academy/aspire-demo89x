@@ -29,8 +29,9 @@ on:
         default: ""
       environment-suffix:
         description: "Environment suffix for resource naming (D/T/S/P) - used for custom Azure resource naming convention"
-        required: true
+        required: false
         type: string
+        default: ""
 
 jobs:
   deploy:
@@ -47,7 +48,7 @@ jobs:
       AZURE_ENV_NAME: ${{ format('{0}-{1}', inputs.environment-name, inputs.azure-location) }}
       AZURE_LOCATION: ${{ inputs.azure-location }}
       AZURE_RESOURCE_GROUP: ${{ inputs.resource-group }}
-      AZURE_ENV_SUFFIX: ${{ inputs.environment-suffix }}
+      AZURE_ENV_SUFFIX: ${{ inputs.environment-suffix || vars.AZURE_ENV_SUFFIX }}
       AZD_ALPHA_ENABLE_RESOURCEGROUPDEPLOYMENTS: "true"
 
     defaults:

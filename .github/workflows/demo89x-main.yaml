@@ -20,9 +20,6 @@ env:
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-  AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
-  AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
-  AZURE_ENV_SUFFIX: ${{ vars.AZURE_ENV_SUFFIX }}
 
 defaults:
   run:
@@ -42,16 +39,12 @@ jobs:
         include:
           - environment: Dev
             region: eastus
-            env-suffix: D
           - environment: Test
             region: eastus
-            env-suffix: T
           - environment: Dev
             region: centralus
-            env-suffix: D
           - environment: Test
             region: centralus
-            env-suffix: T
       fail-fast: false # Continue with other regions/environments if one fails
     uses: ./.github/workflows/demo89x-deploy.yaml
     needs: build-and-test
@@ -62,7 +55,6 @@ jobs:
       dotnet-version: "9.x.x"
       azure-location: ${{ matrix.region }}
       resource-group: rg-${{ matrix.environment }}-${{ matrix.region }}
-      environment-suffix: ${{ matrix.env-suffix }}
 
   # build:
   #   runs-on: ubuntu-latest
