@@ -28,10 +28,9 @@ on:
         type: string
         default: ""
       environment-suffix:
-        description: "Optional suffix to append to the environment name for region-specific deployments"
-        required: false
+        description: "Environment suffix for resource naming (D/T/S/P) - used for custom Azure resource naming convention"
+        required: true
         type: string
-        default: ""
 
 jobs:
   deploy:
@@ -48,6 +47,7 @@ jobs:
       AZURE_ENV_NAME: ${{ format('{0}-{1}', inputs.environment-name, inputs.azure-location) }}
       AZURE_LOCATION: ${{ inputs.azure-location }}
       AZURE_RESOURCE_GROUP: ${{ inputs.resource-group }}
+      AZURE_ENV_SUFFIX: ${{ inputs.environment-suffix }}
       AZD_ALPHA_ENABLE_RESOURCEGROUPDEPLOYMENTS: "true"
 
     defaults:
@@ -104,6 +104,10 @@ jobs:
           # Set the resource group name explicitly
           echo "Setting resource group to: ${{ env.AZURE_RESOURCE_GROUP }}"
           azd env set AZURE_RESOURCE_GROUP ${{ env.AZURE_RESOURCE_GROUP }}
+
+          # Set the environment suffix for custom resource naming
+          echo "Setting environment suffix to: ${{ env.AZURE_ENV_SUFFIX }}"
+          azd env set AZURE_ENV_SUFFIX ${{ env.AZURE_ENV_SUFFIX }}
 
       # Validate infrastructure changes before deployment (Azure best practice)
       - name: Validate Infrastructure Changes

@@ -1,8 +1,10 @@
 # .NET Aspire With Custom Azure Resource Naming
 
-A .NET Aspire project implementing enterprise-grade Azure resource naming conventions with automated infrastructure generation and custom naming enforcement.
+A .NET Aspire project implementing enterprise-grade Azure resource naming conventions with automated infrastructure generation, custom naming enforcement, and full CI/CD integration.
 
 ## 🚀 Quick Start - Automated Deployment
+
+### Local Development
 
 Navigate to the AppHost directory and run the deployment script:
 
@@ -22,20 +24,17 @@ cd src\HelloAspireApp.AppHost
 azd up
 ```
 
-This script automatically:
+### GitHub Actions CI/CD
 
-1. Sets the `AZURE_ENV_SUFFIX` environment variable
-2. Generates infrastructure using `azd infra generate --force`
-3. Applies custom naming conventions to all resources
-4. Provides a summary of the naming changes
+Set up GitHub Environments (`Dev`, `Test`) with the required variables and trigger deployments through GitHub Actions workflows. See [GitHub Environments Setup Guide](docs/github-environments-setup.md) for detailed instructions.
 
 All resources will follow the `sv-*-{env}` naming convention for easy identification and management in the Azure Portal.
 
 ---
 
-## 🏗️ Custom Azure Resource Naming Solution
+## 🏗️ Dynamic Azure Resource Naming Solution
 
-This project implements a comprehensive, **fully automated** custom naming convention for Azure resources that addresses the challenges of maintaining consistent naming across environments when using .NET Aspire and Azure Developer CLI (azd).
+This project implements a comprehensive, **fully automated** and **parameter-driven** custom naming convention for Azure resources that addresses the challenges of maintaining consistent naming across environments when using .NET Aspire and Azure Developer CLI (azd).
 
 ### 🎯 Problem Statement
 
@@ -45,8 +44,11 @@ When using `azd infra generate` (or `azd infra synth`) with .NET Aspire:
 - Manual edits to Bicep files are overwritten each time infrastructure is regenerated
 - Maintaining consistent naming conventions across environments becomes challenging
 - Enterprise naming standards are difficult to enforce automatically
+- CI/CD pipelines need dynamic environment-specific naming
 
-### ✅ Solution: Two-Part Automated Approach
+### ✅ Solution: Dynamic Parameter-Based Approach
+
+The solution has evolved from a script-based approach to a **dynamic parameter-driven system** that works seamlessly with both local development and CI/CD pipelines.
 
 #### Part 1: FixedNameInfrastructureResolver (Aspire Resources)
 
@@ -73,27 +75,49 @@ public sealed class FixedNameInfrastructureResolver : InfrastructureResolver
 }
 ```
 
-#### Part 2: PowerShell Post-Processing Script (Core Infrastructure)
+#### Part 2: Dynamic Bicep Parameters (Core Infrastructure)
 
-Handles core infrastructure resources that azd generates automatically:
+Uses parameter-driven Bicep templates that adapt to environment-specific configurations:
+
+```bicep
+// main.bicep
+@description('Environment suffix for resource naming')
+param environmentSuffix string
+
+// resources.bicep
+param environmentSuffix string
+
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: 'sv-mi-${environmentSuffix}'
+  location: location
+}
+
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
+  name: 'svacr${toLower(environmentSuffix)}'
+  location: location
+}
+```
+
+#### Part 3: Environment Integration
+
+**Local Development:**
 
 ```powershell
-# Deploy-WithCustomNames.ps1
-# Automatically applies custom naming after azd infra generate
-
-param(
-    [string]$EnvironmentSuffix = $env:AZURE_ENV_SUFFIX ?? "D",
-    [string]$UniquePrefix = "sv"
-)
-
-# 1. Set environment variable for resolver
+# Deploy-WithCustomNames.ps1 (Legacy support)
 $env:AZURE_ENV_SUFFIX = $EnvironmentSuffix
+azd env set AZURE_ENV_SUFFIX $EnvironmentSuffix
+azd up
+```
 
-# 2. Generate infrastructure
-azd infra generate --force
+**CI/CD Pipeline:**
 
-# 3. Apply custom naming patterns to Bicep files
-# ... (replaces default names with custom naming convention)
+```yaml
+# GitHub Actions workflow
+- name: Set Environment Suffix
+  run: azd env set AZURE_ENV_SUFFIX ${{ matrix.environment-suffix }}
+
+- name: Deploy to Azure
+  run: azd up --confirm
 ```
 
 ### 🌍 Environment Support
@@ -107,35 +131,100 @@ azd infra generate --force
 
 ### 🔄 Automated Workflow
 
-The complete workflow is now **fully automated** with a single script:
+The solution now supports **both local development and CI/CD pipelines** with dynamic parameter configuration:
+
+#### Local Development Workflow
 
 ```powershell
-# Deploy to any environment with one command
+# Single command deployment for any environment
 .\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "P"
 azd up
+```
+
+#### CI/CD Pipeline Workflow
+
+```yaml
+# GitHub Actions matrix strategy
+strategy:
+  matrix:
+    include:
+      - environment: Dev
+        environment-suffix: D
+      - environment: Test
+        environment-suffix: T
+
+steps:
+  - uses: azure/login@v1
+  - run: azd env set AZURE_ENV_SUFFIX ${{ matrix.environment-suffix }}
+  - run: azd up --confirm
 ```
 
 **What happens automatically:**
 
 1. **Environment Setup**: Sets `AZURE_ENV_SUFFIX` environment variable
-2. **Infrastructure Generation**: Runs `azd infra generate --force`
-3. **Custom Naming Application**: Patches generated Bicep files with enterprise naming
-4. **Validation**: Provides summary of all resource names
-5. **Ready for Deployment**: Infrastructure is ready for `azd up`
+2. **Dynamic Parameters**: Bicep templates use `${AZURE_ENV_SUFFIX}` from parameters file
+3. **Custom Naming Application**: All resources follow the `sv-*-{env}` naming convention
+4. **Multi-Environment Support**: Same templates work across Dev, Test, Staging, Production
+5. **CI/CD Integration**: GitHub Actions workflows handle environment-specific deployments
+
+### 🌍 Multi-Environment Support
+
+| Environment | Suffix | Example Resource Group | Redis Cache  | Container Registry | Log Analytics | Container Apps Env | Managed Identity |
+| ----------- | ------ | ---------------------- | ------------ | ------------------ | ------------- | ------------------ | ---------------- |
+| Development | `D`    | `rg-Dev-eastus`        | `sv-cache-D` | `svacrd`           | `sv-law-D`    | `sv-cae-D`         | `sv-mi-D`        |
+| Test        | `T`    | `rg-Test-eastus`       | `sv-cache-T` | `svacrt`           | `sv-law-T`    | `sv-cae-T`         | `sv-mi-T`        |
+| Staging     | `S`    | `rg-Staging-eastus`    | `sv-cache-S` | `svacrs`           | `sv-law-S`    | `sv-cae-S`         | `sv-mi-S`        |
+| Production  | `P`    | `rg-Production-eastus` | `sv-cache-P` | `svacrp`           | `sv-law-P`    | `sv-cae-P`         | `sv-mi-P`        |
 
 ### 📋 Complete Resource Naming Reference
 
-| Resource Type                  | Example Name          | Naming Method                      | Location                |
-| ------------------------------ | --------------------- | ---------------------------------- | ----------------------- |
-| **Azure Redis Cache**          | `sv-cache-P`          | ✅ FixedNameInfrastructureResolver | Auto-generated Bicep    |
-| **Container Registry**         | `svacrp`              | 🔧 PowerShell Script               | `infra/resources.bicep` |
-| **Log Analytics Workspace**    | `sv-law-P`            | 🔧 PowerShell Script               | `infra/resources.bicep` |
-| **Container Apps Environment** | `sv-cae-P`            | 🔧 PowerShell Script               | `infra/resources.bicep` |
-| **Managed Identity**           | `sv-mi-P`             | 🔧 PowerShell Script               | `infra/resources.bicep` |
-| **API Service**                | `sv-api-service-dev`  | Manual (Program.cs)                | Service definitions     |
-| **Web Frontend**               | `sv-web-frontend-dev` | Manual (Program.cs)                | Service definitions     |
+| Resource Type                  | Example Name           | Naming Method                      | Configuration Location               |
+| ------------------------------ | ---------------------- | ---------------------------------- | ------------------------------------ |
+| **Azure Redis Cache**          | `sv-cache-P`           | ✅ FixedNameInfrastructureResolver | `FixedNameInfrastructureResolver.cs` |
+| **Container Registry**         | `svacrp`               | 🎯 Dynamic Bicep Parameter         | `infra/resources.bicep`              |
+| **Log Analytics Workspace**    | `sv-law-P`             | 🎯 Dynamic Bicep Parameter         | `infra/resources.bicep`              |
+| **Container Apps Environment** | `sv-cae-P`             | 🎯 Dynamic Bicep Parameter         | `infra/resources.bicep`              |
+| **Managed Identity**           | `sv-mi-P`              | 🎯 Dynamic Bicep Parameter         | `infra/resources.bicep`              |
+| **API Service**                | `sv-api-service-dev`   | 📝 Manual (Program.cs)             | Service definitions                  |
+| **Web Frontend**               | `sv-web-frontend-dev`  | 📝 Manual (Program.cs)             | Service definitions                  |
+| **Resource Group**             | `rg-Production-eastus` | 🎯 Dynamic Bicep Parameter         | `infra/main.bicep`                   |
 
 ### 🔧 Technical Implementation Details
+
+#### Key Files Structure
+
+```text
+infra/
+├── main.bicep                              # ✅ Orchestrates with environmentSuffix parameter
+├── main.parameters.json                    # ✅ Maps environmentSuffix to ${AZURE_ENV_SUFFIX}
+├── resources.bicep                         # ✅ Dynamic naming using environmentSuffix
+├── cache/
+│   ├── cache.module.bicep                  # ✅ Dynamic Redis cache naming
+│   └── cache-roles/
+│       └── cache-roles.module.bicep        # ✅ Dynamic role assignments
+.github/workflows/
+├── demo89x-main.yaml                      # ✅ Matrix strategy with environment mapping
+└── demo89x-deploy.yaml                    # ✅ Reusable workflow with environment-suffix
+src/HelloAspireApp.AppHost/
+├── FixedNameInfrastructureResolver.cs      # ✅ Aspire resource naming
+├── Deploy-WithCustomNames.ps1             # 🔄 Legacy script (still functional)
+└── Program.cs                              # ✅ Resolver registration
+```
+
+#### Environment Variable Flow
+
+```mermaid
+graph LR
+    A[GitHub Environment Variables] --> B[workflow: environment-suffix]
+    B --> C[azd env set AZURE_ENV_SUFFIX]
+    C --> D[main.parameters.json: ${AZURE_ENV_SUFFIX}]
+    D --> E[Bicep Templates: environmentSuffix]
+    E --> F[Azure Resources: sv-*-{env}]
+
+    G[Local: Deploy-WithCustomNames.ps1] --> C
+    H[FixedNameInfrastructureResolver] --> I[AZURE_ENV_SUFFIX config]
+    I --> F
+```
 
 #### FixedNameInfrastructureResolver Registration
 
@@ -148,94 +237,147 @@ builder.Services.Configure<AzureProvisioningOptions>(options =>
 });
 ```
 
-#### PowerShell Script Key Replacements
+#### Dynamic Parameter Configuration
 
-The script automatically replaces these patterns in `infra/resources.bicep`:
+```json
+// infra/main.parameters.json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentSuffix": {
+      "value": "${AZURE_ENV_SUFFIX}"
+    }
+  }
+}
+```
+
+#### Bicep Template Example
 
 ```bicep
-// Before (azd generated):
-name: 'mi-${resourceToken}'
+// infra/resources.bicep
+@description('Environment suffix for resource naming')
+param environmentSuffix string
 
-// After (script applied):
-name: 'sv-mi-P'
-
-// Before:
-name: replace('acr-${resourceToken}', '-', '')
-
-// After:
-name: 'sv' + 'acr' + toLower('P')
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: 'sv-mi-${environmentSuffix}'
+  location: location
+  tags: union(tags, { 'azd-service-name': 'managedidentity' })
+}
 ```
 
-### 🚀 Getting Started
+---
 
-#### Prerequisites
+## 🚀 Getting Started
 
-```powershell
-# Enable alpha features for azd
-azd config set alpha.infraSynth on
-azd config set alpha.resourceGroupDeployments on
+### Prerequisites
 
-azd infra generate --force
+- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [Azure Developer CLI (azd)](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)
+- [Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli)
+- Azure subscription with appropriate permissions
 
-# Authenticate with Azure
-azd auth login --scope https://management.azure.com//.default
+### 1. Clone and Setup
 
-$env:AZURE_ENV_SUFFIX='D'
-azd up -e aspire-dev-001
-
-$env:AZURE_ENV_SUFFIX='T'
-azd up -e aspire-test-001
-
-$env:AZURE_ENV_SUFFIX='S'
-azd up -e aspire-stage-001
+```bash
+git clone <repository-url>
+cd aspire-demo89x
 ```
 
-#### First-Time Setup
+### 2. Local Development Setup
 
 ```powershell
-# Navigate to AppHost directory
+# Navigate to AppHost
 cd src\HelloAspireApp.AppHost
-
-# Initialize azd project (if not done already)
-azd init
 
 # Deploy to Development (default)
 .\Deploy-WithCustomNames.ps1
+
+# Or specify environment
+.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "T"  # Test environment
+
+# Deploy to Azure
 azd up
 ```
 
-#### Multi-Environment Deployment
+### 3. GitHub Actions Setup
+
+1. **Create GitHub Environments:** Follow the [GitHub Environments Setup Guide](docs/github-environments-setup.md)
+2. **Configure Secrets:** Set up Azure service principal credentials
+3. **Trigger Workflow:** Push to main branch or manually trigger via GitHub Actions
+
+### 4. Verification
 
 ```powershell
-# Deploy to Production
-.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "P"
-azd up
+# Test the complete workflow
+.\Test-DynamicNaming.ps1 -EnvironmentSuffix "D"
 
-# Deploy to Test
-.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "T"
-azd up
+# Skip deployment, test compilation only
+.\Test-DynamicNaming.ps1 -EnvironmentSuffix "D" -SkipDeploy
+
+# Cleanup test resources
+.\Test-DynamicNaming.ps1 -EnvironmentSuffix "D" -CleanupOnly
 ```
 
-### 🎯 Benefits of This Approach
+---
 
-✅ **Fully Automated**: No manual Bicep file editing required  
-✅ **Environment Agnostic**: Single script works for all environments  
-✅ **Regeneration Safe**: Can re-run `azd infra generate` anytime  
-✅ **Enterprise Ready**: Consistent naming across all resources  
-✅ **Maintainable**: Changes in one place affect entire naming convention  
-✅ **Future Proof**: Easy to add new resource types to the naming system
+## 📚 Documentation
 
-### 🔍 Troubleshooting
+- [GitHub Environments Setup Guide](docs/github-environments-setup.md) - Configure GitHub Environments for CI/CD
+- [GitHub Actions Workflows](docs/github-actions-workflows.md) - Understanding the CI/CD pipeline
+- [Troubleshooting Guide](docs/troubleshooting.md) - Common issues and solutions
 
-#### Common Issues
+---
 
-**Issue**: Resources still have default names after running script
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**Bicep compilation errors after `azd infra generate`**
+
+- Run `.\Test-DynamicNaming.ps1 -EnvironmentSuffix "D" -SkipDeploy` to validate templates
+
+**Resources created with wrong names**
+
+- Verify `AZURE_ENV_SUFFIX` is set: `azd env get-values`
+- Check GitHub Environment variables match expected values
+
+**GitHub Actions workflow failures**
+
+- Ensure GitHub Environments are properly configured
+- Verify environment suffix mapping in matrix strategy
+
+### Debug Commands
 
 ```powershell
-# Solution: Ensure you're in the correct directory
+# Check environment variables
+azd env get-values
+
+# Validate Bicep templates
+az bicep build --file infra/main.bicep
+
+# Test complete workflow
+.\Test-DynamicNaming.ps1 -EnvironmentSuffix "D"
+```
+
+### Legacy Support
+
+The `Deploy-WithCustomNames.ps1` script is maintained for backwards compatibility but **the dynamic parameter approach is recommended** for new implementations.
+
+---
+
+## Federation Credentials
+
+```text
+repo:Swamy-s-Tech-Skills-Academy/aspire-demo89x:ref:refs/heads/main
+repo:Swamy-s-Tech-Skills-Academy/aspire-demo89x:environment:Dev
+repo:Swamy-s-Tech-Skills-Academy/aspire-demo89x:environment:Test
+```
+
 cd src\HelloAspireApp.AppHost
 .\Deploy-WithCustomNames.ps1
-```
+
+````
 
 **Issue**: Script reports "No changes needed" but names are wrong
 
@@ -243,7 +385,7 @@ cd src\HelloAspireApp.AppHost
 # Solution: Re-generate infrastructure first
 azd infra generate --force
 .\Deploy-WithCustomNames.ps1
-```
+````
 
 **Issue**: FixedNameInfrastructureResolver not working
 

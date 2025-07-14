@@ -26,7 +26,7 @@ env:
 
 defaults:
   run:
-    working-directory: src/HelloAspireApp.AppHost
+    working-directory: ./src/HelloAspireApp.AppHost
 
 jobs:
   build-and-test:
@@ -39,8 +39,19 @@ jobs:
   deploy:
     strategy:
       matrix:
-        environment: [Dev, Test]
-        region: [eastus, centralus] # Multi-region deployment support
+        include:
+          - environment: Dev
+            region: eastus
+            env-suffix: D
+          - environment: Test
+            region: eastus
+            env-suffix: T
+          - environment: Dev
+            region: centralus
+            env-suffix: D
+          - environment: Test
+            region: centralus
+            env-suffix: T
       fail-fast: false # Continue with other regions/environments if one fails
     uses: ./.github/workflows/demo89x-deploy.yaml
     needs: build-and-test
@@ -50,7 +61,8 @@ jobs:
       working-directory: "./src/HelloAspireApp.AppHost"
       dotnet-version: "9.x.x"
       azure-location: ${{ matrix.region }}
-      resource-group: rg-aspire-${{ matrix.environment }}-${{ matrix.region }}
+      resource-group: rg-${{ matrix.environment }}-${{ matrix.region }}
+      environment-suffix: ${{ matrix.env-suffix }}
 
   # build:
   #   runs-on: ubuntu-latest
