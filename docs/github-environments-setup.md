@@ -97,15 +97,15 @@ Container Apps Environment: sv-cae-T-use
 Redis Cache: sv-cache-T-use
 ```
 
-### Test Environment (centralus)
+### Test Environment (eastus) - Final Configuration
 
 ```text
-Resource Group: rg-Test-centralus
-Managed Identity: sv-mi-T-usc
-Container Registry: svacrt-usc
-Log Analytics: sv-law-T-usc
-Container Apps Environment: sv-cae-T-usc
-Redis Cache: sv-cache-T-usc
+Resource Group: rg-Test-eastus
+Managed Identity: sv-mi-T-use
+Container Registry: svacrtuse
+Log Analytics: sv-law-T-use
+Container Apps Environment: sv-cae-T-use
+Redis Cache: sv-cache-T-use
 ```
 
 ### Multi-Region Support
