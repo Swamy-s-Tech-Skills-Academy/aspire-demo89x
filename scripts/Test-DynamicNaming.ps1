@@ -47,7 +47,7 @@ function Test-BicepCompilation {
     
     try {
         # Test main.bicep compilation
-        $result = az bicep build --file "infra/main.bicep" --stdout 2>&1
+        $result = az bicep build --file "src/HelloAspireApp.AppHost/infra/main.bicep" --stdout 2>&1
         if ($LASTEXITCODE -eq 0) {
             Write-TestResult "Main Bicep compilation" $true "Compiled successfully"
         }
@@ -57,7 +57,7 @@ function Test-BicepCompilation {
         }
         
         # Test resources.bicep compilation
-        $result = az bicep build --file "infra/resources.bicep" --stdout 2>&1
+        $result = az bicep build --file "src/HelloAspireApp.AppHost/infra/resources.bicep" --stdout 2>&1
         if ($LASTEXITCODE -eq 0) {
             Write-TestResult "Resources Bicep compilation" $true "Compiled successfully"
         }
@@ -67,7 +67,7 @@ function Test-BicepCompilation {
         }
         
         # Test cache module compilation
-        $result = az bicep build --file "infra/cache/cache.module.bicep" --stdout 2>&1
+        $result = az bicep build --file "src/HelloAspireApp.AppHost/infra/cache/cache.module.bicep" --stdout 2>&1
         if ($LASTEXITCODE -eq 0) {
             Write-TestResult "Cache module compilation" $true "Compiled successfully"
         }
@@ -89,7 +89,7 @@ function Test-ParameterValidation {
     
     try {
         # Check main.parameters.json structure
-        $paramsContent = Get-Content "infra/main.parameters.json" -Raw | ConvertFrom-Json
+        $paramsContent = Get-Content "src/HelloAspireApp.AppHost/infra/main.parameters.json" -Raw | ConvertFrom-Json
         
         # Verify environmentSuffix parameter exists
         if ($paramsContent.parameters.environmentSuffix) {

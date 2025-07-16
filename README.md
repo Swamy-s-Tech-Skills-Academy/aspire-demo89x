@@ -361,14 +361,17 @@ cd aspire-demo89x
 ### 2. Local Development Setup
 
 ```powershell
-# Navigate to AppHost
-cd src\HelloAspireApp.AppHost
+# Navigate to project root
+cd aspire-demo89x
 
 # Deploy to Development (default)
 .\scripts\Deploy-WithCustomNames.ps1
 
 # Or specify environment
 .\scripts\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "T"  # Test environment
+
+# Navigate to AppHost for azd deployment
+cd src\HelloAspireApp.AppHost
 
 # Deploy to Azure
 azd up
@@ -424,13 +427,18 @@ azd up
 ### Debug Commands
 
 ```powershell
-# Check environment variables
+# Navigate to project root first
+cd aspire-demo89x
+
+# Check environment variables (run from AppHost directory)
+cd src\HelloAspireApp.AppHost
 azd env get-values
 
 # Validate Bicep templates
-az bicep build --file infra/main.bicep
+az bicep build --file src/HelloAspireApp.AppHost/infra/main.bicep
 
-# Test complete workflow
+# Test complete workflow (run from project root)
+cd ..\..\..
 .\scripts\Test-DynamicNaming.ps1 -EnvironmentSuffix "D"
 ```
 
@@ -456,8 +464,10 @@ cd src\HelloAspireApp.AppHost
 **Issue**: Script reports "No changes needed" but names are wrong
 
 ```powershell
-# Solution: Re-generate infrastructure first
+# Solution: Re-generate infrastructure first (run from AppHost directory)
+cd src\HelloAspireApp.AppHost
 azd infra generate --force
+cd ..\..\..
 .\scripts\Deploy-WithCustomNames.ps1
 ````
 
