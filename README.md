@@ -51,10 +51,10 @@ Comprehensive documentation is available in the [docs](docs/) folder:
 
 ### 🔄 Staged CI/CD Deployment
 
-- **Dev Environment**: Automatic deployment after successful build/test
+- **Dev Environment**: Automatic deployment to East US and Central US regions
 - **Test Environment**: Manual approval required before deployment
 - **Production Ready**: Extensible for Staging/Production environments
-- **Multi-Region Support**: Deploy across multiple Azure regions
+- **Multi-Region Support**: Dev deploys to multiple regions, Test onwards require approval
 
 ### 🛡️ Security & Best Practices
 
@@ -84,7 +84,9 @@ Comprehensive documentation is available in the [docs](docs/) folder:
 
 ## 📋 Resource Naming Examples
 
-### Dev Environment (East US)
+### Dev Environment (Multi-Region)
+
+**East US:**
 
 ```
 Resource Group: rg-Dev-eastus
@@ -93,6 +95,17 @@ Container Registry: svacrduse
 Log Analytics: sv-law-D-use
 Container Apps Env: sv-cae-D-use
 Redis Cache: sv-cache-D-use
+```
+
+**Central US:**
+
+```
+Resource Group: rg-Dev-centralus
+Managed Identity: sv-mi-D-usc
+Container Registry: svacrdusc
+Log Analytics: sv-law-D-usc
+Container Apps Env: sv-cae-D-usc
+Redis Cache: sv-cache-D-usc
 ```
 
 ### Test Environment (East US)
@@ -106,7 +119,7 @@ Container Apps Env: sv-cae-T-use
 Redis Cache: sv-cache-T-use
 ```
 
-All resources will follow the `sv-*-{env}` naming convention for easy identification and management in the Azure Portal.
+All resources will follow the `sv-*-{env}-{region}` naming convention for easy identification and management in the Azure Portal.
 
 ---
 
@@ -251,12 +264,13 @@ steps:
 
 ### 🌍 Multi-Environment Support
 
-| Environment | Suffix | Example Resource Group | Redis Cache  | Container Registry | Log Analytics | Container Apps Env | Managed Identity |
-| ----------- | ------ | ---------------------- | ------------ | ------------------ | ------------- | ------------------ | ---------------- |
-| Development | `D`    | `rg-Dev-eastus`        | `sv-cache-D` | `svacrd`           | `sv-law-D`    | `sv-cae-D`         | `sv-mi-D`        |
-| Test        | `T`    | `rg-Test-eastus`       | `sv-cache-T` | `svacrt`           | `sv-law-T`    | `sv-cae-T`         | `sv-mi-T`        |
-| Staging     | `S`    | `rg-Staging-eastus`    | `sv-cache-S` | `svacrs`           | `sv-law-S`    | `sv-cae-S`         | `sv-mi-S`        |
-| Production  | `P`    | `rg-Production-eastus` | `sv-cache-P` | `svacrp`           | `sv-law-P`    | `sv-cae-P`         | `sv-mi-P`        |
+| Environment   | Suffix | Example Resource Group | Redis Cache      | Container Registry | Log Analytics  | Container Apps Env | Managed Identity |
+| ------------- | ------ | ---------------------- | ---------------- | ------------------ | -------------- | ------------------ | ---------------- |
+| Dev (East)    | `D`    | `rg-Dev-eastus`        | `sv-cache-D-use` | `svacrduse`        | `sv-law-D-use` | `sv-cae-D-use`     | `sv-mi-D-use`    |
+| Dev (Central) | `D`    | `rg-Dev-centralus`     | `sv-cache-D-usc` | `svacrdusc`        | `sv-law-D-usc` | `sv-cae-D-usc`     | `sv-mi-D-usc`    |
+| Test          | `T`    | `rg-Test-eastus`       | `sv-cache-T-use` | `svacrtuse`        | `sv-law-T-use` | `sv-cae-T-use`     | `sv-mi-T-use`    |
+| Staging       | `S`    | `rg-Staging-eastus`    | `sv-cache-S-use` | `svacrsuse`        | `sv-law-S-use` | `sv-cae-S-use`     | `sv-mi-S-use`    |
+| Production    | `P`    | `rg-Production-eastus` | `sv-cache-P-use` | `svacrpuse`        | `sv-law-P-use` | `sv-cae-P-use`     | `sv-mi-P-use`    |
 
 ### 📋 Complete Resource Naming Reference
 
