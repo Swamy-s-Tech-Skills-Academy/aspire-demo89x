@@ -34,7 +34,7 @@ Write-Host "`n✅ Infrastructure templates are now dynamic!" -ForegroundColor Cy
 Write-Host "   Resource names will be based on environment suffix: $EnvironmentSuffix" -ForegroundColor Green
 
 # Verify that the main.parameters.json has the correct parameter
-$mainParamsPath = "infra/main.parameters.json"
+$mainParamsPath = "src/HelloAspireApp.AppHost/infra/main.parameters.json"
 if (Test-Path $mainParamsPath) {
     $paramsContent = Get-Content $mainParamsPath -Raw | ConvertFrom-Json
     if ($paramsContent.parameters.environmentSuffix) {

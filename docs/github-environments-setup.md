@@ -64,27 +64,38 @@ These should be configured at **Repository Settings â†’ Secrets and variables â†
 
 With this setup, your Azure resources will be named as follows:
 
-### Dev Environment (eastus)
+### Dev Environment (Multi-Region Deployment)
+
+**East US Region:**
 
 ```text
 Resource Group: rg-Dev-eastus
 Managed Identity: sv-mi-D-use
-Container Registry: svacrd-use
+Container Registry: svacrduse
 Log Analytics: sv-law-D-use
 Container Apps Environment: sv-cae-D-use
 Redis Cache: sv-cache-D-use
 ```
 
-### Dev Environment (centralus)
+**Central US Region:**
 
 ```text
+Resource Group: rg-Dev-centralus
+Managed Identity: sv-mi-D-usc
+Container Registry: svacrdusc
+Log Analytics: sv-law-D-usc
+Container Apps Environment: sv-cae-D-usc
+Redis Cache: sv-cache-D-usc
+```
+
 Resource Group: rg-Dev-centralus
 Managed Identity: sv-mi-D-usc
 Container Registry: svacrd-usc
 Log Analytics: sv-law-D-usc
 Container Apps Environment: sv-cae-D-usc
 Redis Cache: sv-cache-D-usc
-```
+
+````
 
 ### Test Environment (eastus)
 
@@ -95,7 +106,7 @@ Container Registry: svacrt-use
 Log Analytics: sv-law-T-use
 Container Apps Environment: sv-cae-T-use
 Redis Cache: sv-cache-T-use
-```
+````
 
 ### Test Environment (eastus) - Final Configuration
 

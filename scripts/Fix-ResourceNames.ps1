@@ -18,7 +18,7 @@ param(
     [string]$UniquePrefix = "sv"
 )
 
-$resourcesBicepPath = "infra/resources.bicep"
+$resourcesBicepPath = "src/HelloAspireApp.AppHost/infra/resources.bicep"
 
 Write-Host "🔧 Fixing resource names in $resourcesBicepPath..." -ForegroundColor Cyan
 Write-Host "   Environment Suffix: $EnvironmentSuffix" -ForegroundColor Yellow

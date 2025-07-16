@@ -1,6 +1,6 @@
 # .NET Aspire With Custom Azure Resource Naming
 
-A comprehensive .NET Aspire 9.x project implementing enterprise-grade Azure resource naming conventions with automated infrastructure generation, custom naming enforcement, and full CI/CD integration.
+A comprehensive .NET 8.x Aspire 9.x project implementing enterprise-grade Azure resource naming conventions with automated infrastructure generation, custom naming enforcement, and full CI/CD integration.
 
 ## 🚀 Quick Start
 
@@ -51,10 +51,10 @@ Comprehensive documentation is available in the [docs](docs/) folder:
 
 ### 🔄 Staged CI/CD Deployment
 
-- **Dev Environment**: Automatic deployment after successful build/test
+- **Dev Environment**: Automatic deployment to East US and Central US regions
 - **Test Environment**: Manual approval required before deployment
 - **Production Ready**: Extensible for Staging/Production environments
-- **Multi-Region Support**: Deploy across multiple Azure regions
+- **Multi-Region Support**: Dev deploys to multiple regions, Test onwards require approval
 
 ### 🛡️ Security & Best Practices
 
@@ -84,7 +84,9 @@ Comprehensive documentation is available in the [docs](docs/) folder:
 
 ## 📋 Resource Naming Examples
 
-### Dev Environment (East US)
+### Dev Environment (Multi-Region)
+
+**East US:**
 
 ```
 Resource Group: rg-Dev-eastus
@@ -93,6 +95,17 @@ Container Registry: svacrduse
 Log Analytics: sv-law-D-use
 Container Apps Env: sv-cae-D-use
 Redis Cache: sv-cache-D-use
+```
+
+**Central US:**
+
+```
+Resource Group: rg-Dev-centralus
+Managed Identity: sv-mi-D-usc
+Container Registry: svacrdusc
+Log Analytics: sv-law-D-usc
+Container Apps Env: sv-cae-D-usc
+Redis Cache: sv-cache-D-usc
 ```
 
 ### Test Environment (East US)
@@ -106,7 +119,7 @@ Container Apps Env: sv-cae-T-use
 Redis Cache: sv-cache-T-use
 ```
 
-All resources will follow the `sv-*-{env}` naming convention for easy identification and management in the Azure Portal.
+All resources will follow the `sv-*-{env}-{region}` naming convention for easy identification and management in the Azure Portal.
 
 ---
 
@@ -181,7 +194,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
 **Local Development:**
 
 ```powershell
-# Deploy-WithCustomNames.ps1 (Legacy support)
+# scripts/Deploy-WithCustomNames.ps1 (Legacy support)
 $env:AZURE_ENV_SUFFIX = $EnvironmentSuffix
 azd env set AZURE_ENV_SUFFIX $EnvironmentSuffix
 azd up
@@ -219,7 +232,7 @@ The solution now supports **both local development and CI/CD pipelines** with dy
 
 ```powershell
 # Single command deployment for any environment
-.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "P"
+.\scripts\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "P"
 azd up
 ```
 
@@ -251,12 +264,13 @@ steps:
 
 ### 🌍 Multi-Environment Support
 
-| Environment | Suffix | Example Resource Group | Redis Cache  | Container Registry | Log Analytics | Container Apps Env | Managed Identity |
-| ----------- | ------ | ---------------------- | ------------ | ------------------ | ------------- | ------------------ | ---------------- |
-| Development | `D`    | `rg-Dev-eastus`        | `sv-cache-D` | `svacrd`           | `sv-law-D`    | `sv-cae-D`         | `sv-mi-D`        |
-| Test        | `T`    | `rg-Test-eastus`       | `sv-cache-T` | `svacrt`           | `sv-law-T`    | `sv-cae-T`         | `sv-mi-T`        |
-| Staging     | `S`    | `rg-Staging-eastus`    | `sv-cache-S` | `svacrs`           | `sv-law-S`    | `sv-cae-S`         | `sv-mi-S`        |
-| Production  | `P`    | `rg-Production-eastus` | `sv-cache-P` | `svacrp`           | `sv-law-P`    | `sv-cae-P`         | `sv-mi-P`        |
+| Environment   | Suffix | Example Resource Group | Redis Cache      | Container Registry | Log Analytics  | Container Apps Env | Managed Identity |
+| ------------- | ------ | ---------------------- | ---------------- | ------------------ | -------------- | ------------------ | ---------------- |
+| Dev (East)    | `D`    | `rg-Dev-eastus`        | `sv-cache-D-use` | `svacrduse`        | `sv-law-D-use` | `sv-cae-D-use`     | `sv-mi-D-use`    |
+| Dev (Central) | `D`    | `rg-Dev-centralus`     | `sv-cache-D-usc` | `svacrdusc`        | `sv-law-D-usc` | `sv-cae-D-usc`     | `sv-mi-D-usc`    |
+| Test          | `T`    | `rg-Test-eastus`       | `sv-cache-T-use` | `svacrtuse`        | `sv-law-T-use` | `sv-cae-T-use`     | `sv-mi-T-use`    |
+| Staging       | `S`    | `rg-Staging-eastus`    | `sv-cache-S-use` | `svacrsuse`        | `sv-law-S-use` | `sv-cae-S-use`     | `sv-mi-S-use`    |
+| Production    | `P`    | `rg-Production-eastus` | `sv-cache-P-use` | `svacrpuse`        | `sv-law-P-use` | `sv-cae-P-use`     | `sv-mi-P-use`    |
 
 ### 📋 Complete Resource Naming Reference
 
@@ -276,20 +290,12 @@ steps:
 #### Key Files Structure
 
 ```text
-infra/
-├── main.bicep                              # ✅ Orchestrates with environmentSuffix parameter
-├── main.parameters.json                    # ✅ Maps environmentSuffix to ${AZURE_ENV_SUFFIX}
-├── resources.bicep                         # ✅ Dynamic naming using environmentSuffix
-├── cache/
-│   ├── cache.module.bicep                  # ✅ Dynamic Redis cache naming
-│   └── cache-roles/
-│       └── cache-roles.module.bicep        # ✅ Dynamic role assignments
-.github/workflows/
-├── demo89x-main.yaml                      # ✅ Matrix strategy with environment mapping
-└── demo89x-deploy.yaml                    # ✅ Reusable workflow with environment-suffix
+scripts/
+├── Deploy-WithCustomNames.ps1             # 🔄 Legacy script (still functional)
+├── Fix-ResourceNames.ps1                  # 🔧 Resource name fixing utility
+└── Test-DynamicNaming.ps1                 # 🧪 Testing and validation script
 src/HelloAspireApp.AppHost/
 ├── FixedNameInfrastructureResolver.cs      # ✅ Aspire resource naming
-├── Deploy-WithCustomNames.ps1             # 🔄 Legacy script (still functional)
 └── Program.cs                              # ✅ Resolver registration
 ```
 
@@ -369,14 +375,17 @@ cd aspire-demo89x
 ### 2. Local Development Setup
 
 ```powershell
-# Navigate to AppHost
-cd src\HelloAspireApp.AppHost
+# Navigate to project root
+cd aspire-demo89x
 
 # Deploy to Development (default)
-.\Deploy-WithCustomNames.ps1
+.\scripts\Deploy-WithCustomNames.ps1
 
 # Or specify environment
-.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "T"  # Test environment
+.\scripts\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "T"  # Test environment
+
+# Navigate to AppHost for azd deployment
+cd src\HelloAspireApp.AppHost
 
 # Deploy to Azure
 azd up
@@ -392,13 +401,13 @@ azd up
 
 ```powershell
 # Test the complete workflow
-.\Test-DynamicNaming.ps1 -EnvironmentSuffix "D"
+.\scripts\Test-DynamicNaming.ps1 -EnvironmentSuffix "D"
 
 # Skip deployment, test compilation only
-.\Test-DynamicNaming.ps1 -EnvironmentSuffix "D" -SkipDeploy
+.\scripts\Test-DynamicNaming.ps1 -EnvironmentSuffix "D" -SkipDeploy
 
 # Cleanup test resources
-.\Test-DynamicNaming.ps1 -EnvironmentSuffix "D" -CleanupOnly
+.\scripts\Test-DynamicNaming.ps1 -EnvironmentSuffix "D" -CleanupOnly
 ```
 
 ---
@@ -417,7 +426,7 @@ azd up
 
 **Bicep compilation errors after `azd infra generate`**
 
-- Run `.\Test-DynamicNaming.ps1 -EnvironmentSuffix "D" -SkipDeploy` to validate templates
+- Run `.\scripts\Test-DynamicNaming.ps1 -EnvironmentSuffix "D" -SkipDeploy` to validate templates
 
 **Resources created with wrong names**
 
@@ -432,19 +441,24 @@ azd up
 ### Debug Commands
 
 ```powershell
-# Check environment variables
+# Navigate to project root first
+cd aspire-demo89x
+
+# Check environment variables (run from AppHost directory)
+cd src\HelloAspireApp.AppHost
 azd env get-values
 
 # Validate Bicep templates
-az bicep build --file infra/main.bicep
+az bicep build --file src/HelloAspireApp.AppHost/infra/main.bicep
 
-# Test complete workflow
-.\Test-DynamicNaming.ps1 -EnvironmentSuffix "D"
+# Test complete workflow (run from project root)
+cd ..\..\..
+.\scripts\Test-DynamicNaming.ps1 -EnvironmentSuffix "D"
 ```
 
 ### Legacy Support
 
-The `Deploy-WithCustomNames.ps1` script is maintained for backwards compatibility but **the dynamic parameter approach is recommended** for new implementations.
+The `scripts\Deploy-WithCustomNames.ps1` script is maintained for backwards compatibility but **the dynamic parameter approach is recommended** for new implementations.
 
 ---
 
@@ -464,9 +478,11 @@ cd src\HelloAspireApp.AppHost
 **Issue**: Script reports "No changes needed" but names are wrong
 
 ```powershell
-# Solution: Re-generate infrastructure first
+# Solution: Re-generate infrastructure first (run from AppHost directory)
+cd src\HelloAspireApp.AppHost
 azd infra generate --force
-.\Deploy-WithCustomNames.ps1
+cd ..\..\..
+.\scripts\Deploy-WithCustomNames.ps1
 ````
 
 **Issue**: FixedNameInfrastructureResolver not working
@@ -531,7 +547,7 @@ infra/
 ### Manual Commands (Not Recommended - Use Script Instead)
 
 ```powershell
-# Old manual workflow (replaced by Deploy-WithCustomNames.ps1)
+# Old manual workflow (replaced by scripts\Deploy-WithCustomNames.ps1)
 $env:AZURE_ENV_SUFFIX = "P"
 azd infra generate --force
 # Manual Bicep file editing required...

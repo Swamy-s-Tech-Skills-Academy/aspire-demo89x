@@ -48,10 +48,12 @@ jobs:
         include:
           - environment: Dev
             region: eastus
+          - environment: Dev
+            region: centralus
     uses: ./.github/workflows/demo89x-deploy.yaml
 
   deploy-test:
-    needs: deploy-dev # Wait for Dev deployment
+    needs: deploy-dev # Wait for ALL Dev deployments
     strategy:
       matrix:
         include:
@@ -62,10 +64,11 @@ jobs:
 
 ### Key Features
 
-- **Staged Deployment**: Deploy to Dev first, then Test after approval
-- **Single Region**: Currently configured for eastus only
-- **Matrix Strategy**: Extensible for multi-region deployment
-- **Dependency Management**: Test deployment waits for Dev completion
+- **Staged Deployment**: Deploy to Dev (both regions) first, then Test after approval
+- **Multi-Region Dev**: Dev automatically deploys to both East US and Central US
+- **Single Region Test**: Test deploys to East US only (with manual approval)
+- **Matrix Strategy**: Extensible for additional regions
+- **Dependency Management**: Test deployment waits for ALL Dev deployments to complete
 
 ## 🧪 Reusable Build & Test Workflow
 
