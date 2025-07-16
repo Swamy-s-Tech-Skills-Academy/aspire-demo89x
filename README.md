@@ -1,6 +1,6 @@
 # .NET Aspire With Custom Azure Resource Naming
 
-A comprehensive .NET Aspire 9.x project implementing enterprise-grade Azure resource naming conventions with automated infrastructure generation, custom naming enforcement, and full CI/CD integration.
+A comprehensive .NET 8.x Aspire 9.x project implementing enterprise-grade Azure resource naming conventions with automated infrastructure generation, custom naming enforcement, and full CI/CD integration.
 
 ## 🚀 Quick Start
 
@@ -181,7 +181,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
 **Local Development:**
 
 ```powershell
-# Deploy-WithCustomNames.ps1 (Legacy support)
+# scripts/Deploy-WithCustomNames.ps1 (Legacy support)
 $env:AZURE_ENV_SUFFIX = $EnvironmentSuffix
 azd env set AZURE_ENV_SUFFIX $EnvironmentSuffix
 azd up
@@ -219,7 +219,7 @@ The solution now supports **both local development and CI/CD pipelines** with dy
 
 ```powershell
 # Single command deployment for any environment
-.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "P"
+.\scripts\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "P"
 azd up
 ```
 
@@ -276,20 +276,12 @@ steps:
 #### Key Files Structure
 
 ```text
-infra/
-├── main.bicep                              # ✅ Orchestrates with environmentSuffix parameter
-├── main.parameters.json                    # ✅ Maps environmentSuffix to ${AZURE_ENV_SUFFIX}
-├── resources.bicep                         # ✅ Dynamic naming using environmentSuffix
-├── cache/
-│   ├── cache.module.bicep                  # ✅ Dynamic Redis cache naming
-│   └── cache-roles/
-│       └── cache-roles.module.bicep        # ✅ Dynamic role assignments
-.github/workflows/
-├── demo89x-main.yaml                      # ✅ Matrix strategy with environment mapping
-└── demo89x-deploy.yaml                    # ✅ Reusable workflow with environment-suffix
+scripts/
+├── Deploy-WithCustomNames.ps1             # 🔄 Legacy script (still functional)
+├── Fix-ResourceNames.ps1                  # 🔧 Resource name fixing utility
+└── Test-DynamicNaming.ps1                 # 🧪 Testing and validation script
 src/HelloAspireApp.AppHost/
 ├── FixedNameInfrastructureResolver.cs      # ✅ Aspire resource naming
-├── Deploy-WithCustomNames.ps1             # 🔄 Legacy script (still functional)
 └── Program.cs                              # ✅ Resolver registration
 ```
 
@@ -373,10 +365,10 @@ cd aspire-demo89x
 cd src\HelloAspireApp.AppHost
 
 # Deploy to Development (default)
-.\Deploy-WithCustomNames.ps1
+.\scripts\Deploy-WithCustomNames.ps1
 
 # Or specify environment
-.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "T"  # Test environment
+.\scripts\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "T"  # Test environment
 
 # Deploy to Azure
 azd up
@@ -392,13 +384,13 @@ azd up
 
 ```powershell
 # Test the complete workflow
-.\Test-DynamicNaming.ps1 -EnvironmentSuffix "D"
+.\scripts\Test-DynamicNaming.ps1 -EnvironmentSuffix "D"
 
 # Skip deployment, test compilation only
-.\Test-DynamicNaming.ps1 -EnvironmentSuffix "D" -SkipDeploy
+.\scripts\Test-DynamicNaming.ps1 -EnvironmentSuffix "D" -SkipDeploy
 
 # Cleanup test resources
-.\Test-DynamicNaming.ps1 -EnvironmentSuffix "D" -CleanupOnly
+.\scripts\Test-DynamicNaming.ps1 -EnvironmentSuffix "D" -CleanupOnly
 ```
 
 ---
@@ -417,7 +409,7 @@ azd up
 
 **Bicep compilation errors after `azd infra generate`**
 
-- Run `.\Test-DynamicNaming.ps1 -EnvironmentSuffix "D" -SkipDeploy` to validate templates
+- Run `.\scripts\Test-DynamicNaming.ps1 -EnvironmentSuffix "D" -SkipDeploy` to validate templates
 
 **Resources created with wrong names**
 
@@ -439,12 +431,12 @@ azd env get-values
 az bicep build --file infra/main.bicep
 
 # Test complete workflow
-.\Test-DynamicNaming.ps1 -EnvironmentSuffix "D"
+.\scripts\Test-DynamicNaming.ps1 -EnvironmentSuffix "D"
 ```
 
 ### Legacy Support
 
-The `Deploy-WithCustomNames.ps1` script is maintained for backwards compatibility but **the dynamic parameter approach is recommended** for new implementations.
+The `scripts\Deploy-WithCustomNames.ps1` script is maintained for backwards compatibility but **the dynamic parameter approach is recommended** for new implementations.
 
 ---
 
@@ -466,7 +458,7 @@ cd src\HelloAspireApp.AppHost
 ```powershell
 # Solution: Re-generate infrastructure first
 azd infra generate --force
-.\Deploy-WithCustomNames.ps1
+.\scripts\Deploy-WithCustomNames.ps1
 ````
 
 **Issue**: FixedNameInfrastructureResolver not working
@@ -531,7 +523,7 @@ infra/
 ### Manual Commands (Not Recommended - Use Script Instead)
 
 ```powershell
-# Old manual workflow (replaced by Deploy-WithCustomNames.ps1)
+# Old manual workflow (replaced by scripts\Deploy-WithCustomNames.ps1)
 $env:AZURE_ENV_SUFFIX = "P"
 azd infra generate --force
 # Manual Bicep file editing required...
