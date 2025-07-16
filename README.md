@@ -1,32 +1,110 @@
 # .NET Aspire With Custom Azure Resource Naming
 
-A .NET Aspire project implementing enterprise-grade Azure resource naming conventions with automated infrastructure generation, custom naming enforcement, and full CI/CD integration.
+A comprehensive .NET Aspire 9.x project implementing enterprise-grade Azure resource naming conventions with automated infrastructure generation, custom naming enforcement, and full CI/CD integration.
 
-## 🚀 Quick Start - Automated Deployment
+## 🚀 Quick Start
 
 ### Local Development
 
-Navigate to the AppHost directory and run the deployment script:
+```bash
+# Clone repository
+git clone https://github.com/Swamy-s-Tech-Skills-Academy/aspire-demo89x.git
+cd aspire-demo89x
 
-```powershell
-# Navigate to the AppHost directory
-cd src\HelloAspireApp.AppHost
+# Navigate to AppHost directory
+cd src/HelloAspireApp.AppHost
 
-# Deploy to Development environment (default)
-.\Deploy-WithCustomNames.ps1
+# Install .NET Aspire workload
+dotnet workload install aspire
 
-# Deploy to other environments
-.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "P"  # Production
-.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "T"  # Test
-.\Deploy-WithCustomNames.ps1 -EnvironmentSuffix "S"  # Staging
-
-# Then deploy to Azure
+# Deploy infrastructure and application
 azd up
 ```
 
 ### GitHub Actions CI/CD
 
-Set up GitHub Environments (`Dev`, `Test`) with the required variables and trigger deployments through GitHub Actions workflows. See [GitHub Environments Setup Guide](docs/github-environments-setup.md) for detailed instructions.
+Set up GitHub Environments (`Dev`, `Test`) with required variables and trigger deployments through GitHub Actions workflows. See [Documentation](docs/README.md) for detailed setup instructions.
+
+## 📚 Documentation
+
+Comprehensive documentation is available in the [docs](docs/) folder:
+
+- **[Getting Started](docs/README.md)** - Project overview and quick start
+- **[Architecture Overview](docs/architecture-overview.md)** - System architecture and components
+- **[Resource Naming Convention](docs/resource-naming-convention.md)** - Enterprise naming standards
+- **[Infrastructure as Code](docs/infrastructure-as-code.md)** - Bicep templates and deployment
+- **[Deployment Guide](docs/deployment-guide.md)** - Step-by-step deployment instructions
+- **[Developer Guide](docs/developer-guide.md)** - Development workflows and patterns
+- **[Configuration Reference](docs/configuration-reference.md)** - Complete configuration guide
+- **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
+- **[GitHub Actions Workflows](docs/github-actions-workflows.md)** - CI/CD pipeline details
+- **[GitHub Environments Setup](docs/github-environments-setup.md)** - Environment configuration
+
+## 🎯 Key Features
+
+### 🏷️ Enterprise Resource Naming
+
+- **Environment-aware**: Resources tagged with environment suffix (D/T/S/P)
+- **Region-specific**: Resources include region abbreviations (use, usc, etc.)
+- **Consistent**: All resources follow `sv-{service}-{env}-{region}` pattern
+- **Scalable**: Easily extensible to new regions and environments
+
+### 🔄 Staged CI/CD Deployment
+
+- **Dev Environment**: Automatic deployment after successful build/test
+- **Test Environment**: Manual approval required before deployment
+- **Production Ready**: Extensible for Staging/Production environments
+- **Multi-Region Support**: Deploy across multiple Azure regions
+
+### 🛡️ Security & Best Practices
+
+- **Managed Identity**: No stored secrets in application code
+- **Federated Credentials**: Secure GitHub Actions authentication
+- **Resource-level RBAC**: Fine-grained access control
+- **Infrastructure as Code**: All resources defined in version control
+
+## 🏗️ Architecture
+
+### Technology Stack
+
+- **.NET 8.0** - Runtime platform
+- **.NET Aspire 9.x** - Cloud-native orchestration
+- **Azure Container Apps** - Container hosting
+- **Azure Redis Cache** - Distributed caching
+- **Azure Container Registry** - Container images
+- **Bicep** - Infrastructure as Code
+- **GitHub Actions** - CI/CD automation
+
+### Core Components
+
+- **API Service** - RESTful API backend
+- **Web Frontend** - Blazor Server application
+- **App Host** - .NET Aspire orchestrator
+- **Service Defaults** - Shared configurations
+
+## 📋 Resource Naming Examples
+
+### Dev Environment (East US)
+
+```
+Resource Group: rg-Dev-eastus
+Managed Identity: sv-mi-D-use
+Container Registry: svacrduse
+Log Analytics: sv-law-D-use
+Container Apps Env: sv-cae-D-use
+Redis Cache: sv-cache-D-use
+```
+
+### Test Environment (East US)
+
+```
+Resource Group: rg-Test-eastus
+Managed Identity: sv-mi-T-use
+Container Registry: svacrtuse
+Log Analytics: sv-law-T-use
+Container Apps Env: sv-cae-T-use
+Redis Cache: sv-cache-T-use
+```
 
 All resources will follow the `sv-*-{env}` naming convention for easy identification and management in the Azure Portal.
 

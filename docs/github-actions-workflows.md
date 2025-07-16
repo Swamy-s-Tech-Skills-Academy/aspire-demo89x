@@ -5,18 +5,67 @@ This document describes the GitHub Actions workflows used in the aspire-demo89x 
 ## 📋 Table of Contents
 
 - [Overview](#overview)
-- [Reusable Build & Test Workflow](#reusable-build--test-workflow)
-- [Azure Deployment Workflow](#azure-deployment-workflow)
+- [Main Workflow](#main-workflow)
+- [Build & Test Workflow](#build--test-workflow)
+- [Deployment Workflow](#deployment-workflow)
 - [Setup and Configuration](#setup-and-configuration)
 - [Usage Examples](#usage-examples)
 - [Troubleshooting](#troubleshooting)
 
 ## 🔄 Overview
 
-The project uses two main GitHub Actions workflows:
+The project uses three main GitHub Actions workflows:
 
-1. **`demo89x-build-test.yaml`** - Reusable workflow for building, testing, and code coverage
-2. **`deploy-to-azure.yml`** - Deploys the application to Azure using Azure Developer CLI (azd)
+1. **`demo89x-main.yaml`** - Main orchestration workflow with staged deployment
+2. **`demo89x-build-test.yaml`** - Reusable workflow for building, testing, and code coverage
+3. **`demo89x-deploy.yaml`** - Reusable deployment workflow for Azure deployment
+
+## 🎯 Main Workflow (demo89x-main.yaml)
+
+### Purpose
+
+The main workflow orchestrates the entire CI/CD pipeline with staged deployment from Dev to Test environment.
+
+### Workflow Structure
+
+```yaml
+name: Aspire Demo .NET 8 Aspire 9.x Main
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    uses: ./.github/workflows/demo89x-build-test.yaml
+
+  deploy-dev:
+    needs: build-and-test
+    strategy:
+      matrix:
+        include:
+          - environment: Dev
+            region: eastus
+    uses: ./.github/workflows/demo89x-deploy.yaml
+
+  deploy-test:
+    needs: deploy-dev # Wait for Dev deployment
+    strategy:
+      matrix:
+        include:
+          - environment: Test
+            region: eastus
+    uses: ./.github/workflows/demo89x-deploy.yaml
+```
+
+### Key Features
+
+- **Staged Deployment**: Deploy to Dev first, then Test after approval
+- **Single Region**: Currently configured for eastus only
+- **Matrix Strategy**: Extensible for multi-region deployment
+- **Dependency Management**: Test deployment waits for Dev completion
 
 ## 🧪 Reusable Build & Test Workflow
 
