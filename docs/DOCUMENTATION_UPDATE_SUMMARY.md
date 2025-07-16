@@ -1,10 +1,81 @@
 # Documentation Update Summary
 
-## ✅ Documentation Files Created/Updated
+## ✅ Multi-Region Documentation Updates Complete
 
-The docs folder has been completely updated with comprehensive, up-to-date documentation for the aspire-demo89x project. Here's what was accomplished:
+The docs folder has been completely updated with comprehensive, up-to-date documentation for the aspire-demo89x project, now reflecting the multi-region Dev environment setup.
 
-### 📁 New Documentation Structure
+## 🔄 Multi-Region Implementation Changes
+
+### Updated Files for Multi-Region Support
+
+#### 1. **docs/README.md** - Main documentation index
+
+- Updated resource naming examples to show East US (`use`) and Central US (`usc`) regions
+- Modified Dev environment description to reflect multi-region deployment
+- Added examples: `sv-aspire-demo89x-api-D-use` and `sv-aspire-demo89x-api-D-usc`
+
+#### 2. **docs/github-environments-setup.md** - GitHub environment configuration
+
+- Updated Dev environment section to show multi-region deployment
+- Added separate resource examples for both East US and Central US
+- Maintained single Dev environment with matrix strategy approach
+
+#### 3. **docs/github-actions-workflows.md** - CI/CD workflow documentation
+
+- Updated workflow structure to show matrix strategy for multi-region Dev deployment
+- Added matrix configuration showing both `eastus` and `centralus` regions
+- Clarified that Test and Production remain single-region deployments
+
+#### 4. **docs/deployment-guide.md** - Step-by-step deployment instructions
+
+- Updated GitHub environment setup instructions for multi-region Dev
+- Added examples showing resource naming for both regions
+- Clarified multi-region deployment process
+
+#### 5. **docs/architecture-overview.md** - System architecture and component overview
+
+- Enhanced deployment flow diagram to show parallel Dev deployment to both regions
+- Added multi-region deployment explanation
+- Updated resource naming examples in deployment flow
+
+#### 6. **docs/resource-naming-convention.md** - Enterprise resource naming standards
+
+- Updated examples to show both East US and Central US naming patterns
+- Added region abbreviation examples: `use` (East US) and `usc` (Central US)
+- Maintained consistent naming convention across all environments
+
+#### 7. **docs/troubleshooting.md** - Common issues and solutions guide
+
+- ✅ **NEW**: Added "Multi-Region Deployment Issues" section
+- Included troubleshooting for region-specific deployment failures
+- Added resource naming conflict resolution for multi-region setup
+- Updated examples to show both regions in troubleshooting commands
+
+## 🎯 Multi-Region Implementation Details
+
+### Environment Structure
+
+- **Dev Environment**: Single GitHub environment with matrix strategy deploying to both East US and Central US
+- **Test Environment**: Single region deployment (manual approval required)
+- **Production Environment**: Single region deployment (manual approval required)
+
+### Resource Naming Pattern
+
+- **Format**: `sv-{service}-{env}-{region}`
+- **Dev East US**: `sv-aspire-demo89x-api-D-use`
+- **Dev Central US**: `sv-aspire-demo89x-api-D-usc`
+- **Test**: `sv-aspire-demo89x-api-T-use`
+- **Production**: `sv-aspire-demo89x-api-P-use`
+
+### GitHub Actions Matrix Strategy
+
+```yaml
+strategy:
+  matrix:
+    region: [eastus, centralus]
+```
+
+## 📁 Complete Documentation Structure
 
 ```
 docs/

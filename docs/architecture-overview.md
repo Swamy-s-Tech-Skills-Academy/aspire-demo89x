@@ -126,11 +126,14 @@ This document provides a comprehensive overview of the aspire-demo89x project ar
 1. **Code Commit** → GitHub Repository
 2. **CI/CD Trigger** → GitHub Actions
 3. **Build & Test** → Automated testing
-4. **Container Build** → Docker image creation
-5. **Registry Push** → Azure Container Registry
-6. **Infrastructure Provision** → Bicep templates
-7. **Application Deploy** → Azure Container Apps
-8. **Health Check** → Service verification
+4. **Multi-Region Dev Deploy** → Parallel deployment to East US and Central US
+5. **Container Build** → Docker image creation
+6. **Registry Push** → Azure Container Registry (per region)
+7. **Infrastructure Provision** → Bicep templates (per region)
+8. **Application Deploy** → Azure Container Apps (per region)
+9. **Health Check** → Service verification (per region)
+10. **Test Approval** → Manual approval required for Test environment
+11. **Test Deploy** → Single region deployment to East US
 
 ## 🛠️ Technology Stack
 
