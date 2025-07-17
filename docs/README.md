@@ -107,9 +107,10 @@ azd up
 
 ### 🔄 Staged Deployment
 
-- **Dev Environment**: Automatic deployment after successful build/test
+- **Dev Environment**: Automatic deployment to East US and Central US regions
 - **Test Environment**: Manual approval required before deployment
 - **Production Ready**: Extensible for Staging/Production environments
+- **Multi-Region Support**: Dev environment tests across multiple regions
 
 ### 🛡️ Security Features
 
@@ -119,9 +120,11 @@ azd up
 
 ## 📋 Resource Naming Examples
 
-### Dev Environment (East US)
+### Dev Environment (Multi-Region)
 
-```
+**East US:**
+
+```text
 Resource Group: rg-Dev-eastus
 Managed Identity: sv-mi-D-use
 Container Registry: svacrduse
@@ -130,9 +133,20 @@ Container Apps Env: sv-cae-D-use
 Redis Cache: sv-cache-D-use
 ```
 
+**Central US:**
+
+```text
+Resource Group: rg-Dev-centralus
+Managed Identity: sv-mi-D-usc
+Container Registry: svacrdusc
+Log Analytics: sv-law-D-usc
+Container Apps Env: sv-cae-D-usc
+Redis Cache: sv-cache-D-usc
+```
+
 ### Test Environment (East US)
 
-```
+```text
 Resource Group: rg-Test-eastus
 Managed Identity: sv-mi-T-use
 Container Registry: svacrtuse

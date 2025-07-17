@@ -102,7 +102,9 @@ Examples:
 
 ## 📋 Complete Resource Naming Reference
 
-### Development Environment (East US)
+### Development Environment (Multi-Region)
+
+**East US:**
 
 ```yaml
 Resource Group: rg-Dev-eastus
@@ -111,6 +113,17 @@ Container Registry: svacrduse
 Log Analytics Workspace: sv-law-D-use
 Container Apps Environment: sv-cae-D-use
 Redis Cache: sv-cache-D-use
+```
+
+**Central US:**
+
+```yaml
+Resource Group: rg-Dev-centralus
+Managed Identity: sv-mi-D-usc
+Container Registry: svacrdusc
+Log Analytics Workspace: sv-law-D-usc
+Container Apps Environment: sv-cae-D-usc
+Redis Cache: sv-cache-D-usc
 ```
 
 ### Test Environment (East US)

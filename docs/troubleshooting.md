@@ -148,6 +148,7 @@ docker pull <your-registry-name>.azurecr.io/hello-world
    ```
 
 2. Check managed identity has ACR pull permissions:
+
    ```bash
    az role assignment list --assignee <managed-identity-id> --scope <acr-resource-id>
    ```
@@ -231,12 +232,104 @@ az redis firewall-rule list --name <redis-name> --resource-group <rg-name>
    ```
 
 2. Check variable names match exactly:
+
    ```yaml
    # In workflow file
    AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
    ```
 
-### 6. Local Development Issues
+### 6. Multi-Region Deployment Issues
+
+#### Issue: Deployment fails in one region but succeeds in another
+
+**Symptoms:**
+
+- Matrix job succeeds in East US but fails in Central US
+- Resource naming conflicts between regions
+- Different resource availability in regions
+
+**Solution:**
+
+1. Check region-specific resource availability:
+
+   ```bash
+   # Verify all resources are available in both regions
+   az provider show --namespace Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations" --output table
+   ```
+
+2. Ensure region abbreviations are correct:
+
+   ```yaml
+   # In main.bicep
+   var regionAbbreviations = {
+     eastus: 'use'
+     centralus: 'usc'
+   }
+   ```
+
+3. Monitor matrix job logs separately:
+
+   ```bash
+   # In GitHub Actions, check individual matrix job logs
+   # Dev - East US: sv-aspire-demo89x-api-D-use
+   # Dev - Central US: sv-aspire-demo89x-api-D-usc
+   ```
+
+#### Issue: Resource naming conflicts across regions
+
+**Symptoms:**
+
+- "Resource name already exists" errors
+- Resources from different regions conflicting
+
+**Solution:**
+
+1. Verify resource naming includes region abbreviation:
+
+   ```bash
+   # Expected naming pattern
+   sv-aspire-demo89x-api-D-use    # East US
+   sv-aspire-demo89x-api-D-usc    # Central US
+   ```
+
+2. Check Bicep template includes region suffix:
+
+   ```bicep
+   var regionAbbr = regionAbbreviations[location]
+   var resourceToken = toLower(uniqueString(subscription().id, resourceGroup().id, location))
+   name: '${serviceName}-${environmentName}-${regionAbbr}'
+   ```
+
+#### Issue: Cross-region connectivity problems
+
+**Symptoms:**
+
+- Services in different regions can't communicate
+- Load balancer not distributing traffic properly
+
+**Solution:**
+
+1. Each region deployment is independent - verify services within same region:
+
+   ```bash
+   # Test East US services
+   curl https://sv-aspire-demo89x-web-D-use.azurecontainerapps.io/health
+
+   # Test Central US services
+   curl https://sv-aspire-demo89x-web-D-usc.azurecontainerapps.io/health
+   ```
+
+2. Check container app environment configuration per region:
+
+   ```bash
+   # East US environment
+   az containerapp env show --name sv-aspire-demo89x-env-D-use --resource-group sv-aspire-demo89x-rg-D-use
+
+   # Central US environment
+   az containerapp env show --name sv-aspire-demo89x-env-D-usc --resource-group sv-aspire-demo89x-rg-D-usc
+   ```
+
+### 7. Local Development Issues
 
 #### Issue: Aspire Dashboard not accessible
 
@@ -282,7 +375,7 @@ public class WeatherApiClient
 }
 ```
 
-### 7. Performance Issues
+### 8. Performance Issues
 
 #### Issue: Slow application startup
 

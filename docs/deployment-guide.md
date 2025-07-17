@@ -14,6 +14,7 @@ This guide provides step-by-step instructions for deploying the aspire-demo89x a
 
 - Automated deployment pipeline
 - Multi-environment support with approval gates
+- **Multi-Region Dev Environment**: Deploys to East US and Central US simultaneously
 - Recommended for production use
 
 ### 3. Manual Azure CLI Deployment
@@ -127,24 +128,25 @@ Navigate to **Repository Settings → Environments**:
 #### Dev Environment
 
 - **Name**: `Dev`
-- **Protection Rules**: None (automatic deployment)
+- **Protection Rules**: None (automatic deployment to both regions)
 - **Variables**:
-  ```
+  ```env
   AZURE_ENV_NAME = aspire-dev-001
-  AZURE_LOCATION = eastus
   AZURE_ENV_SUFFIX = D
   ```
+- **Deployment**: Automatically deploys to both East US and Central US regions
 
 #### Test Environment
 
 - **Name**: `Test`
 - **Protection Rules**: Required reviewers (manual approval)
 - **Variables**:
-  ```
+  ```env
   AZURE_ENV_NAME = aspire-test-001
   AZURE_LOCATION = eastus
   AZURE_ENV_SUFFIX = T
   ```
+- **Deployment**: Requires manual approval, deploys to East US only
 
 ### Step 3: Configure Repository Secrets
 
