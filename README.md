@@ -553,11 +553,3 @@ azd infra generate --force
 # Manual Bicep file editing required...
 azd up
 ```
-
-## Federation Credentials
-
-```text
-repo:Swamy-s-Tech-Skills-Academy/aspire-demo89x:ref:refs/heads/main
-
-repo:Swamy-s-Tech-Skills-Academy/aspire-demo89x:environment:Dev
-```
