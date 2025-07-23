@@ -179,11 +179,17 @@ git push origin main
 ### Step 6: Verify Multi-Environment Deployment
 
 ```bash
-# Check Dev environment
+# Check Dev environment - East US
 az resource list --resource-group rg-Dev-eastus --output table
 
-# Check Test environment (after approval)
+# Check Dev environment - Central US
+az resource list --resource-group rg-Dev-centralus --output table
+
+# Check Test environment - East US (after approval)
 az resource list --resource-group rg-Test-eastus --output table
+
+# Check Test environment - Central US (after approval)
+az resource list --resource-group rg-Test-centralus --output table
 ```
 
 ## 🛠️ Manual Azure CLI Deployment
