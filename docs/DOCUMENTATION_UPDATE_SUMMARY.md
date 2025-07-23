@@ -56,7 +56,7 @@ The docs folder has been completely updated with comprehensive, up-to-date docum
 ### Environment Structure
 
 - **Dev Environment**: Single GitHub environment with matrix strategy deploying to both East US and Central US
-- **Test Environment**: Single region deployment (manual approval required)
+- **Test Environment**: Single GitHub environment with matrix strategy deploying to both East US and Central US (manual approval required)
 - **Production Environment**: Single region deployment (manual approval required)
 
 ### Resource Naming Pattern
@@ -64,7 +64,8 @@ The docs folder has been completely updated with comprehensive, up-to-date docum
 - **Format**: `sv-{service}-{env}-{region}`
 - **Dev East US**: `sv-aspire-demo89x-api-D-use`
 - **Dev Central US**: `sv-aspire-demo89x-api-D-usc`
-- **Test**: `sv-aspire-demo89x-api-T-use`
+- **Test East US**: `sv-aspire-demo89x-api-T-use`
+- **Test Central US**: `sv-aspire-demo89x-api-T-usc`
 - **Production**: `sv-aspire-demo89x-api-P-use`
 
 ### GitHub Actions Matrix Strategy

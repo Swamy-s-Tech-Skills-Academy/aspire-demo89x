@@ -155,6 +155,17 @@ Container Apps Env: sv-cae-T-use
 Redis Cache: sv-cache-T-use
 ```
 
+### Test Environment (Central US)
+
+```text
+Resource Group: rg-Test-centralus
+Managed Identity: sv-mi-T-usc
+Container Registry: svacrtusc
+Log Analytics: sv-law-T-usc
+Container Apps Env: sv-cae-T-usc
+Redis Cache: sv-cache-T-usc
+```
+
 ## 🔗 Related Links
 
 - [.NET Aspire Documentation](https://learn.microsoft.com/en-us/dotnet/aspire/)

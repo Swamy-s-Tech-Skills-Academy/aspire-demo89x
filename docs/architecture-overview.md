@@ -133,7 +133,7 @@ This document provides a comprehensive overview of the aspire-demo89x project ar
 8. **Application Deploy** → Azure Container Apps (per region)
 9. **Health Check** → Service verification (per region)
 10. **Test Approval** → Manual approval required for Test environment
-11. **Test Deploy** → Single region deployment to East US
+11. **Multi-Region Test Deploy** → Parallel deployment to East US and Central US
 
 ## 🛠️ Technology Stack
 
@@ -167,14 +167,14 @@ This document provides a comprehensive overview of the aspire-demo89x project ar
 The application uses environment-specific configuration:
 
 ```yaml
-# Dev Environment
+# Dev Environment (Multi-Region)
 AZURE_ENV_NAME: aspire-dev-001
-AZURE_LOCATION: eastus
+AZURE_LOCATION: eastus, centralus
 AZURE_ENV_SUFFIX: D
 
-# Test Environment
+# Test Environment (Multi-Region)
 AZURE_ENV_NAME: aspire-test-001
-AZURE_LOCATION: eastus
+AZURE_LOCATION: eastus, centralus
 AZURE_ENV_SUFFIX: T
 ```
 
