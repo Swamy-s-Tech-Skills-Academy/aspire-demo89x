@@ -58,6 +58,8 @@ jobs:
         include:
           - environment: Test
             region: eastus
+          - environment: Test
+            region: centralus
       fail-fast: false # Continue with other regions if one fails
     uses: ./.github/workflows/demo89x-deploy.yaml
     needs: deploy-dev # Wait for Dev deployment to complete
