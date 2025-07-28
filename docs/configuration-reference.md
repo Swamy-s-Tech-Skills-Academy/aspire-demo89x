@@ -21,11 +21,14 @@ These variables must be set for the application to function properly.
 
 #### Optional Azure Configuration
 
-| Variable                         | Description                | Example                 | Default                     |
-| -------------------------------- | -------------------------- | ----------------------- | --------------------------- |
-| `AZURE_RESOURCE_GROUP`           | Custom resource group name | `rg-Custom-eastus`      | `rg-{Environment}-{Region}` |
-| `AZURE_CREDENTIALS`              | Service Principal JSON     | `{"clientId":"..."}`    | Uses federated credentials  |
-| `AZD_INITIAL_ENVIRONMENT_CONFIG` | Initial azd configuration  | `{"location":"eastus"}` | Empty                       |
+| Variable                                       | Description                                  | Example                 | Default                     |
+| ---------------------------------------------- | -------------------------------------------- | ----------------------- | --------------------------- |
+| `AZURE_RESOURCE_GROUP`                         | Custom resource group name                   | `rg-Custom-eastus`      | `rg-{Environment}-{Region}` |
+| `AZURE_CREDENTIALS`                            | Service Principal JSON                       | `{"clientId":"..."}`    | Uses federated credentials  |
+| `AZD_INITIAL_ENVIRONMENT_CONFIG`               | Initial azd configuration                    | `{"location":"eastus"}` | Empty                       |
+| `EXISTING_LOG_ANALYTICS_WORKSPACE_CUSTOMER_ID` | Existing Log Analytics workspace customer ID | `12345678-1234-...`     | Creates new workspace       |
+| `EXISTING_LOG_ANALYTICS_WORKSPACE_ID`          | Existing Log Analytics workspace resource ID | `/subscriptions/...`    | Creates new workspace       |
+| `EXISTING_LOG_ANALYTICS_WORKSPACE_SHARED_KEY`  | Existing Log Analytics workspace shared key  | `base64-encoded-key`    | Creates new workspace       |
 
 ### GitHub Environment Variables
 

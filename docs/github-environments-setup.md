@@ -52,13 +52,16 @@ Go to: **Repository Settings → Environments → New environment**
 
 These should be configured at **Repository Settings → Secrets and variables → Actions → Secrets**:
 
-| Secret                           | Description                       | Required                   |
-| -------------------------------- | --------------------------------- | -------------------------- |
-| `AZURE_CLIENT_ID`                | Service Principal Client ID       | ✅ Yes                     |
-| `AZURE_TENANT_ID`                | Azure Tenant ID                   | ✅ Yes                     |
-| `AZURE_SUBSCRIPTION_ID`          | Azure Subscription ID             | ✅ Yes                     |
-| `AZURE_CREDENTIALS`              | Service Principal JSON (optional) | ❌ No (if using federated) |
-| `AZD_INITIAL_ENVIRONMENT_CONFIG` | azd environment config (optional) | ❌ No                      |
+| Secret                                         | Description                                  | Required                       |
+| ---------------------------------------------- | -------------------------------------------- | ------------------------------ |
+| `AZURE_CLIENT_ID`                              | Service Principal Client ID                  | ✅ Yes                         |
+| `AZURE_TENANT_ID`                              | Azure Tenant ID                              | ✅ Yes                         |
+| `AZURE_SUBSCRIPTION_ID`                        | Azure Subscription ID                        | ✅ Yes                         |
+| `AZURE_CREDENTIALS`                            | Service Principal JSON (optional)            | ❌ No (if using federated)     |
+| `AZD_INITIAL_ENVIRONMENT_CONFIG`               | azd environment config (optional)            | ❌ No                          |
+| `EXISTING_LOG_ANALYTICS_WORKSPACE_CUSTOMER_ID` | Existing Log Analytics workspace customer ID | ❌ No (creates new if not set) |
+| `EXISTING_LOG_ANALYTICS_WORKSPACE_ID`          | Existing Log Analytics workspace resource ID | ❌ No (creates new if not set) |
+| `EXISTING_LOG_ANALYTICS_WORKSPACE_SHARED_KEY`  | Existing Log Analytics workspace shared key  | ❌ No (creates new if not set) |
 
 ## 🎯 Expected Resource Naming
 

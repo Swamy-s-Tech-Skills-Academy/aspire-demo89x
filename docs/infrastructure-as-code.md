@@ -166,6 +166,10 @@ Defines the core Azure resources required for the application.
 
    - Centralized logging and monitoring
    - Name: `sv-law-{environmentSuffix}-{regionAbbreviation}`
+   - **Option**: Can reuse existing workspace via environment variables:
+     - `EXISTING_LOG_ANALYTICS_WORKSPACE_CUSTOMER_ID`
+     - `EXISTING_LOG_ANALYTICS_WORKSPACE_ID`
+     - `EXISTING_LOG_ANALYTICS_WORKSPACE_SHARED_KEY`
 
 4. **Container Apps Environment**
    - Hosting environment for containerized applications
