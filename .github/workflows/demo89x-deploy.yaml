@@ -50,6 +50,9 @@ jobs:
       AZURE_RESOURCE_GROUP: ${{ inputs.resource-group || format('rg-{0}-{1}', inputs.environment-name, inputs.azure-location || vars.AZURE_LOCATION || 'eastus') }}
       AZURE_ENV_SUFFIX: ${{ inputs.environment-suffix != '' && inputs.environment-suffix || vars.AZURE_ENV_SUFFIX || 'D' }}
       AZD_ALPHA_ENABLE_RESOURCEGROUPDEPLOYMENTS: "true"
+      EXISTING_LOG_ANALYTICS_WORKSPACE_CUSTOMER_ID: ${{ secrets.EXISTING_LOG_ANALYTICS_WORKSPACE_CUSTOMER_ID || '' }}
+      EXISTING_LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.EXISTING_LOG_ANALYTICS_WORKSPACE_ID || '' }}
+      EXISTING_LOG_ANALYTICS_WORKSPACE_SHARED_KEY: ${{ secrets.EXISTING_LOG_ANALYTICS_WORKSPACE_SHARED_KEY || '' }}
 
     defaults:
       run:
