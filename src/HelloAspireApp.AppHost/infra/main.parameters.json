@@ -13,6 +13,15 @@
     },
     "resourceGroupName": {
       "value": "${AZURE_RESOURCE_GROUP}"
+    },
+    "existingLogAnalyticsWorkspaceId": {
+      "value": "${EXISTING_LOG_ANALYTICS_WORKSPACE_ID}"
+    },
+    "existingLogAnalyticsWorkspaceCustomerId": {
+      "value": "${EXISTING_LOG_ANALYTICS_WORKSPACE_CUSTOMER_ID}"
+    },
+    "existingLogAnalyticsWorkspaceSharedKey": {
+      "value": "${EXISTING_LOG_ANALYTICS_WORKSPACE_SHARED_KEY}"
     }
   }
 }
