@@ -15,6 +15,15 @@ param environmentSuffix string
 @description('Resource group name override (optional)')
 param resourceGroupName string = ''
 
+@description('Resource ID of an existing Log Analytics workspace to use')
+param existingLogAnalyticsWorkspaceId string = ''
+
+@description('Customer ID of the existing Log Analytics workspace')
+param existingLogAnalyticsWorkspaceCustomerId string = ''
+
+@description('Primary shared key of the existing Log Analytics workspace')
+param existingLogAnalyticsWorkspaceSharedKey string = ''
+
 // Function to convert Azure location to region abbreviation
 var regionAbbreviations = {
   eastus: 'use'
@@ -49,6 +58,9 @@ module resources 'resources.bicep' = {
     tags: tags
     environmentSuffix: environmentSuffix
     regionAbbreviation: regionAbbreviation
+    existingLogAnalyticsWorkspaceId: existingLogAnalyticsWorkspaceId
+    existingLogAnalyticsWorkspaceCustomerId: existingLogAnalyticsWorkspaceCustomerId
+    existingLogAnalyticsWorkspaceSharedKey: existingLogAnalyticsWorkspaceSharedKey
   }
 }
 
