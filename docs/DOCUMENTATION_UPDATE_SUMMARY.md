@@ -50,6 +50,31 @@ The docs folder has been completely updated with comprehensive, up-to-date docum
 - Included troubleshooting for region-specific deployment failures
 - Added resource naming conflict resolution for multi-region setup
 - Updated examples to show both regions in troubleshooting commands
+- ✅ **NEW**: Added "Log Analytics Workspace Issues" section with existing workspace configuration
+
+## 🔄 Latest Updates - Log Analytics Workspace Support
+
+### Recent Documentation Updates for Log Analytics Configuration
+
+#### 8. **docs/configuration-reference.md** - Environment variables reference
+
+- ✅ **UPDATED**: Added optional Log Analytics workspace environment variables
+- Added `EXISTING_LOG_ANALYTICS_WORKSPACE_CUSTOMER_ID`, `EXISTING_LOG_ANALYTICS_WORKSPACE_ID`, `EXISTING_LOG_ANALYTICS_WORKSPACE_SHARED_KEY`
+
+#### 9. **docs/github-environments-setup.md** - GitHub secrets configuration
+
+- ✅ **UPDATED**: Added Log Analytics workspace secrets to repository-level secrets table
+- Documented optional nature of these secrets
+
+#### 10. **docs/deployment-guide.md** - Deployment instructions
+
+- ✅ **UPDATED**: Added Log Analytics workspace secrets to configuration steps
+- Added note about automatic workspace creation when secrets not provided
+
+#### 11. **docs/infrastructure-as-code.md** - Bicep templates documentation
+
+- ✅ **UPDATED**: Enhanced Log Analytics Workspace section with existing workspace option
+- Listed environment variables for reusing existing workspaces
 
 ## 🎯 Multi-Region Implementation Details
 

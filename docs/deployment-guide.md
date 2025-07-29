@@ -152,12 +152,17 @@ Navigate to **Repository Settings → Environments**:
 
 Add these secrets in **Repository Settings → Secrets and variables → Actions**:
 
-| Secret Name             | Description                 | Required |
-| ----------------------- | --------------------------- | -------- |
-| `AZURE_CLIENT_ID`       | Service Principal Client ID | Yes      |
-| `AZURE_TENANT_ID`       | Azure Tenant ID             | Yes      |
-| `AZURE_SUBSCRIPTION_ID` | Azure Subscription ID       | Yes      |
-| `AZURE_CREDENTIALS`     | Service Principal JSON      | Optional |
+| Secret Name                                    | Description                                  | Required |
+| ---------------------------------------------- | -------------------------------------------- | -------- |
+| `AZURE_CLIENT_ID`                              | Service Principal Client ID                  | Yes      |
+| `AZURE_TENANT_ID`                              | Azure Tenant ID                              | Yes      |
+| `AZURE_SUBSCRIPTION_ID`                        | Azure Subscription ID                        | Yes      |
+| `AZURE_CREDENTIALS`                            | Service Principal JSON                       | Optional |
+| `EXISTING_LOG_ANALYTICS_WORKSPACE_CUSTOMER_ID` | Existing Log Analytics workspace customer ID | Optional |
+| `EXISTING_LOG_ANALYTICS_WORKSPACE_ID`          | Existing Log Analytics workspace resource ID | Optional |
+| `EXISTING_LOG_ANALYTICS_WORKSPACE_SHARED_KEY`  | Existing Log Analytics workspace shared key  | Optional |
+
+> **Note**: The Log Analytics workspace secrets are optional. If not provided, the deployment will create a new Log Analytics workspace for each environment and region.
 
 ### Step 4: Trigger Deployment
 

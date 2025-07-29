@@ -329,7 +329,78 @@ az redis firewall-rule list --name <redis-name> --resource-group <rg-name>
    az containerapp env show --name sv-aspire-demo89x-env-D-usc --resource-group sv-aspire-demo89x-rg-D-usc
    ```
 
-### 7. Local Development Issues
+### 7. Log Analytics Workspace Issues
+
+#### Issue: Using existing Log Analytics workspace
+
+**Symptoms:**
+
+- Want to reuse existing centralized logging workspace
+- Avoid creating multiple workspaces per environment
+
+**Solution:**
+
+1. Configure repository secrets for existing workspace:
+
+   ```bash
+   # Get workspace information
+   az monitor log-analytics workspace show \
+     --resource-group <existing-rg> \
+     --workspace-name <existing-workspace> \
+     --query "{customerId:customerId,id:id}"
+
+   # Get workspace shared key
+   az monitor log-analytics workspace get-shared-keys \
+     --resource-group <existing-rg> \
+     --workspace-name <existing-workspace> \
+     --query "primarySharedKey"
+   ```
+
+2. Add to GitHub repository secrets:
+
+   - `EXISTING_LOG_ANALYTICS_WORKSPACE_CUSTOMER_ID`: Customer ID from step 1
+   - `EXISTING_LOG_ANALYTICS_WORKSPACE_ID`: Resource ID from step 1
+   - `EXISTING_LOG_ANALYTICS_WORKSPACE_SHARED_KEY`: Shared key from step 1
+
+3. Verify workspace connection in Container Apps:
+
+   ```bash
+   # Check if Container Apps environment uses existing workspace
+   az containerapp env show \
+     --name sv-aspire-demo89x-env-D-use \
+     --resource-group sv-aspire-demo89x-rg-D-use \
+     --query "properties.appLogsConfiguration"
+   ```
+
+#### Issue: Log Analytics workspace access denied
+
+**Symptoms:**
+
+- "Insufficient permissions" errors when connecting to existing workspace
+- Logs not appearing in existing workspace
+
+**Solution:**
+
+1. Grant Service Principal access to existing workspace:
+
+   ```bash
+   # Add Log Analytics Contributor role
+   az role assignment create \
+     --assignee <service-principal-id> \
+     --role "Log Analytics Contributor" \
+     --scope <workspace-resource-id>
+   ```
+
+2. Verify workspace permissions:
+
+   ```bash
+   # Check role assignments on workspace
+   az role assignment list \
+     --scope <workspace-resource-id> \
+     --assignee <service-principal-id>
+   ```
+
+### 8. Local Development Issues
 
 #### Issue: Aspire Dashboard not accessible
 
@@ -375,7 +446,7 @@ public class WeatherApiClient
 }
 ```
 
-### 8. Performance Issues
+### 9. Performance Issues
 
 #### Issue: Slow application startup
 
