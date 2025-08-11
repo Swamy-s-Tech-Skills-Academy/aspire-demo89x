@@ -39,8 +39,10 @@ jobs:
         include:
           - environment: Dev
             region: eastus
+            resourceGroup: rg-Dev-eastus
           - environment: Dev
             region: centralus
+            resourceGroup: rg-Dev-centralus
       fail-fast: false # Continue with other regions if one fails
     uses: ./.github/workflows/demo89x-deploy.yaml
     needs: build-and-test
@@ -50,7 +52,7 @@ jobs:
       working-directory: "./src/HelloAspireApp.AppHost"
       dotnet-version: "8.x.x"
       azure-location: ${{ matrix.region }}
-      resource-group: rg-${{ matrix.environment }}-${{ matrix.region }}
+      resource-group: ${{ matrix.resourceGroup }}
 
   deploy-test:
     strategy:
@@ -58,8 +60,10 @@ jobs:
         include:
           - environment: Test
             region: eastus
+            resourceGroup: rg-Test-eastus
           - environment: Test
             region: centralus
+            resourceGroup: rg-Test-centralus
       fail-fast: false # Continue with other regions if one fails
     uses: ./.github/workflows/demo89x-deploy.yaml
     needs: deploy-dev # Wait for Dev deployment to complete
@@ -69,4 +73,4 @@ jobs:
       working-directory: "./src/HelloAspireApp.AppHost"
       dotnet-version: "8.x.x"
       azure-location: ${{ matrix.region }}
-      resource-group: rg-${{ matrix.environment }}-${{ matrix.region }}
+      resource-group: ${{ matrix.resourceGroup }}
