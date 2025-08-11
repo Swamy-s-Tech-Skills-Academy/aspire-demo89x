@@ -4,13 +4,14 @@ This document describes the GitHub Actions workflows used in the aspire-demo89x 
 
 ## 📋 Table of Contents
 
-- [Overview](#overview)
-- [Main Workflow](#main-workflow)
-- [Build & Test Workflow](#build--test-workflow)
-- [Deployment Workflow](#deployment-workflow)
-- [Setup and Configuration](#setup-and-configuration)
-- [Usage Examples](#usage-examples)
-- [Troubleshooting](#troubleshooting)
+- [Overview](#-overview)
+- [Main Workflow](#main-workflow-demo89x-mainyaml)
+- [Build & Test Workflow](#-reusable-build--test-workflow)
+- [Deployment Workflow](#-azure-deployment-workflow)
+- [Setup and Configuration](#-setup-and-configuration)
+- [Usage Examples](#-usage-examples)
+- [Troubleshooting](#-troubleshooting)
+- [Additional Resources](#-additional-resources)
 
 ## 🔄 Overview
 
@@ -22,7 +23,7 @@ The project uses three main GitHub Actions workflows:
 
 ## 🎯 Main Workflow (demo89x-main.yaml)
 
-### Purpose
+### Purpose (Main)
 
 The main workflow orchestrates the entire CI/CD pipeline with staged deployment from Dev to Test environment.
 
@@ -72,11 +73,13 @@ jobs:
 - **Matrix Strategy**: Extensible for additional regions
 - **Dependency Management**: Test deployment waits for ALL Dev deployments to complete
 
+> Approval note: If your GitHub Test environment has required reviewers, you approve once and both regional matrix jobs (eastus and centralus) start in parallel.
+
 ## 🧪 Reusable Build & Test Workflow
 
 **File:** `.github/workflows/demo89x-build-test.yaml`
 
-### Purpose
+### Purpose (Build & Test)
 
 A reusable workflow that can be called from other workflows to build .NET solutions, run tests, and generate code coverage reports.
 
@@ -88,16 +91,7 @@ A reusable workflow that can be called from other workflows to build .NET soluti
 | `solution-path`  | Path to the solution file (.sln)                   | ✅ Yes   | -         |
 | `dotnet-version` | .NET version to use                                | ❌ No    | `"9.x.x"` |
 
-### Features
-
-- ✅ **Multi-format code coverage** - Generates coverage in Cobertura, OpenCover, and JSON formats
-- ✅ **Auto-discovery** - Automatically finds and runs all `*.Tests.csproj` projects
-- ✅ **Aspire support** - Installs .NET Aspire workload and Azure Developer CLI
-- ✅ **Artifact upload** - Uploads test results and coverage reports
-- ✅ **Codecov integration** - Automatically uploads coverage to Codecov (for public repos)
-- ✅ **Fail-fast** - Stops execution if any test fails
-
-### Workflow Steps
+### Steps: Build & Test
 
 1. **Environment Setup**
 
@@ -145,7 +139,7 @@ jobs:
 
 ### Generated Artifacts
 
-```
+```text
 TestResults-{project-name}/
 ├── {TestProject1}/
 │   ├── *.trx                    # Test result files
@@ -159,9 +153,9 @@ TestResults-{project-name}/
 
 ## 🚀 Azure Deployment Workflow
 
-**File:** `.github/workflows/deploy-to-azure.yml`
+**File:** `.github/workflows/demo89x-deploy.yaml`
 
-### Purpose
+### Purpose (Deploy)
 
 Deploys the .NET Aspire application to Azure using Azure Developer CLI with custom resource naming conventions.
 
@@ -187,7 +181,7 @@ The workflow uses GitHub Environments for different deployment targets:
 | `AZURE_LOCATION`        | Environment Variable | Azure region (e.g., `eastus`)                      |
 | `AZURE_ENV_SUFFIX`      | Environment Variable | Resource naming suffix (`D`/`T`/`S`/`P`)           |
 
-### Workflow Steps
+### Steps: Deployment
 
 1. **Setup**
 
@@ -208,7 +202,7 @@ The workflow uses GitHub Environments for different deployment targets:
 
 The workflow implements enterprise-grade resource naming using environment-specific suffixes:
 
-```
+```text
 Resource Type                 Example Name (Dev)
 ─────────────────────────────────────────────
 Managed Identity             sv-mi-D
@@ -224,7 +218,7 @@ Redis Cache                  sv-cache-D
 
 Configure these secrets in **Settings → Secrets and variables → Actions**:
 
-```
+```text
 AZURE_CLIENT_ID         # Service principal client ID
 AZURE_TENANT_ID         # Azure tenant ID
 AZURE_SUBSCRIPTION_ID   # Azure subscription ID
@@ -237,8 +231,8 @@ Create environments in **Settings → Environments**:
 
 #### Dev Environment
 
-```
-Name: dev
+```text
+Name: Dev
 Variables:
   AZURE_ENV_NAME: aspire-dev-001
   AZURE_LOCATION: eastus
@@ -247,8 +241,9 @@ Variables:
 
 #### Test Environment
 
-```
-Name: test
+```text
+Name: Test
+Protection rules: Required reviewers
 Variables:
   AZURE_ENV_NAME: aspire-test-001
   AZURE_LOCATION: eastus
@@ -257,8 +252,8 @@ Variables:
 
 #### Staging Environment
 
-```
-Name: staging
+```text
+Name: Staging
 Variables:
   AZURE_ENV_NAME: aspire-staging-001
   AZURE_LOCATION: eastus
@@ -299,8 +294,8 @@ jobs:
   deploy-dev:
     needs: test
     if: github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/deploy-to-azure.yml
-    environment: dev
+  uses: ./.github/workflows/demo89x-deploy.yaml
+  environment: Dev
 ```
 
 ### Multi-Environment Deployment
@@ -316,13 +311,12 @@ on:
         required: true
         type: choice
         options:
-          - dev
-          - test
-          - staging
+          - Dev
+          - Test
 
 jobs:
   deploy:
-    uses: ./.github/workflows/deploy-to-azure.yml
+    uses: ./.github/workflows/demo89x-deploy.yaml
     environment: ${{ github.event.inputs.environment }}
 ```
 
@@ -400,6 +394,7 @@ dotnet add package coverlet.msbuild
    ```
 
 3. **Validate Bicep templates:**
+
    ```bash
    az bicep build --file infra/main.bicep
    ```
@@ -413,4 +408,4 @@ dotnet add package coverlet.msbuild
 
 ---
 
-_Last updated: July 14, 2025_
+Last updated: 2025-08-11
